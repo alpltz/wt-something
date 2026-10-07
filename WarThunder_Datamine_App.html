@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>War Thunder Datamine — VROMFS Compare (Автономно)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f0f;--bg-soft:#181818;--bg-panel:#1c1c1c;--bg-elev:#232323;--bg-hover:#2a2a2a;--bg-active:#2e2e2e;
+  --border:#2b2b2b;--border-light:#353535;--text:#e6e6e6;--text-dim:#9a9a9a;--text-faint:#6b6b6b;
+  --green:#7fc97f;--green-bg:rgba(127,201,127,.12);--yellow:#d6b55a;--yellow-bg:rgba(214,181,90,.12);--red:#e07a7a;--blue:#5aa9e6;--accent:#3b82f6;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;font-size:13px;overflow:hidden}
+button,input,select{font:inherit}
+.topbar{height:34px;background:#181818;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:14px;user-select:none}
+.topbar .logo{width:22px;height:22px;background:#ff3b30;border-radius:4px;display:grid;place-items:center;font-size:12px;font-weight:800;color:white;flex-shrink:0}
+.topbar .title{font-weight:700;font-size:13px;letter-spacing:.02em}
+.topbar .subtitle{color:var(--text-dim);font-size:11px;margin-left:6px}
+.topbar .spacer{flex:1}
+.topbar .status{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim);background:var(--bg-elev);border:1px solid var(--border);padding:4px 8px;border-radius:99px}
+.dot{width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block;flex-shrink:0}
+.dot.ok{background:#34d399}
+.dot.err{background:#e07a7a}
+.app{display:flex;height:calc(100% - 34px)}
+.sidebar{width:260px;min-width:260px;background:var(--bg-soft);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.compare-box{padding:12px;border-bottom:1px solid var(--border)}
+.compare-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.compare-head h3{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--text-dim);font-weight:700}
+.icon-row{display:flex;gap:6px;color:var(--text-faint)}
+.icon-row span{width:22px;height:22px;display:grid;place-items:center;border-radius:5px;cursor:pointer;border:1px solid transparent}
+.icon-row span:hover{background:var(--bg-hover);border-color:var(--border);color:var(--text)}
+.field{margin-bottom:9px}
+.field label{font-size:11px;color:var(--text-dim);display:block;margin-bottom:4px;font-weight:600}
+.field label small{font-weight:400;color:var(--text-faint)}
+.select{width:100%;background:var(--bg-elev);border:1px solid var(--border);color:var(--text);padding:8px 9px;border-radius:7px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:12.5px;transition:.15s}
+.select:hover{border-color:var(--border-light);background:var(--bg-hover)}
+.select b{font-weight:600}
+.select .chev{color:var(--text-faint);font-size:11px}
+.auto-row{margin-top:10px;padding:8px;background:var(--bg-panel);border:1px solid var(--border);border-radius:7px;display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--text-dim)}
+.auto-row input{accent-color:var(--accent)}
+.tree{flex:1;overflow:auto;padding:8px 6px}
+.tree-item{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:5px;cursor:pointer;color:var(--text-dim);white-space:nowrap;font-size:12px}
+.tree-item:hover{background:var(--bg-hover);color:var(--text)}
+.tree-item.active{background:var(--bg-active);color:var(--text);border:1px solid var(--border-light)}
+.filechanges{border-top:1px solid var(--border);padding:12px;background:var(--bg-panel)}
+.filechanges h4{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.filechanges h4 b{color:var(--text);font-weight:800;font-size:13px}
+.legend{display:flex;flex-direction:column;gap:6px;font-size:12px}
+.legend div{display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 8px;border-radius:6px;border:1px solid transparent}
+.legend div:hover{background:var(--bg-hover)}
+.legend div.active{border-color:var(--border-light);background:var(--bg-elev)}
+.legend .sq{width:14px;height:14px;border:1px solid var(--border);display:grid;place-items:center;font-size:10px;border-radius:3px;font-weight:700}
+.legend .added{color:var(--green);border-color:rgba(127,201,127,.35);background:var(--green-bg)}
+.legend .modified{color:var(--yellow);border-color:rgba(214,181,90,.35);background:var(--yellow-bg)}
+.legend .deleted{color:var(--red);border-color:rgba(224,122,122,.35);background:rgba(224,122,122,.12)}
+.bottom-actions{padding:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+.btn{padding:8px 10px;border-radius:7px;border:1px solid var(--border);background:var(--bg-elev);color:var(--text);cursor:pointer;display:flex;align-items:center;gap:8px;justify-content:center;font-size:12.5px;font-weight:600;transition:.15s}
+.btn:hover{background:var(--bg-hover);border-color:var(--border-light)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:white}
+.btn.primary:hover{background:#2563eb}
+.btn.ghost{background:transparent;border-color:var(--border)}
+.small-note{font-size:10.5px;color:var(--text-faint);text-align:center;line-height:1.3}
+.explorer{width:400px;min-width:340px;background:var(--bg-panel);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.exp-header{padding:10px;border-bottom:1px solid var(--border)}
+.exp-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.exp-title h3{font-size:12px;font-weight:700}
+.exp-title h3 span{color:var(--text-dim);font-weight:400;margin-left:6px;font-size:11px}
+.exp-title .actions{display:flex;gap:6px;color:var(--text-faint)}
+.exp-title .actions span{width:22px;height:22px;display:grid;place-items:center;border-radius:6px;cursor:pointer;border:1px solid transparent}
+.exp-title .actions span:hover{background:var(--bg-hover);border-color:var(--border);color:var(--text)}
+.search-box{position:relative}
+.search-box input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 8px 7px 28px;border-radius:7px;font-size:12.5px;outline:none}
+.search-box input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(59,130,246,.15)}
+.search-box .sicon{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--text-faint)}
+.filters{display:flex;gap:8px;margin-top:8px}
+.filters .f{flex:1}
+.filters label{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-dim);display:block;margin-bottom:3px;font-weight:600}
+.filters select{width:100%;background:var(--bg-elev);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-size:11.5px}
+.order-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text-dim);background:var(--bg-soft)}
+.file-list{flex:1;overflow:auto}
+.file-row{display:flex;align-items:center;gap:8px;padding:6px 10px;cursor:pointer;border-left:2px solid transparent;color:var(--text-dim);font-size:12px;border-bottom:1px solid rgba(255,255,255,.03)}
+.file-row:hover{background:var(--bg-hover);color:var(--text)}
+.file-row.active{background:#232a3a;color:var(--text);border-left-color:var(--accent)}
+.file-row .icon{width:16px;height:16px;border-radius:4px;display:grid;place-items:center;font-size:10px;font-weight:800;flex-shrink:0}
+.file-row.added .icon{background:var(--green-bg);color:var(--green);border:1px solid rgba(127,201,127,.25)}
+.file-row.modified .icon{background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(214,181,90,.25)}
+.file-row.deleted .icon{background:rgba(224,122,122,.12);color:var(--red);border:1px solid rgba(224,122,122,.25)}
+.file-row .path{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.file-row .delta{font-size:11px;white-space:nowrap;color:var(--text-faint)}
+.file-row .vtag{font-size:10px;padding:2px 5px;border-radius:4px;background:var(--bg-elev);border:1px solid var(--border);color:var(--text-faint);font-weight:600;flex-shrink:0}
+.preview{flex:1;background:var(--bg);display:flex;flex-direction:column;min-width:0}
+.preview-head{padding:10px 12px;border-bottom:1px solid var(--border);background:var(--bg-panel)}
+.preview-head .meta{display:flex;align-items:center;gap:10px}
+.preview-head .fileicon{width:22px;height:22px;background:var(--green-bg);color:var(--green);border:1px solid rgba(127,201,127,.25);display:grid;place-items:center;border-radius:6px;font-size:11px;font-weight:800}
+.preview-head .filename{font-weight:700;font-size:13px}
+.badge{font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:99px;font-weight:800;border:1px solid transparent}
+.badge.added{background:var(--green-bg);color:var(--green);border-color:rgba(127,201,127,.25)}
+.badge.modified{background:var(--yellow-bg);color:var(--yellow);border-color:rgba(214,181,90,.25)}
+.badge.deleted{background:rgba(224,122,122,.15);color:var(--red);border-color:rgba(224,122,122,.25)}
+.preview-head .path2{font-size:11.5px;color:var(--text-dim);margin-top:4px;word-break:break-all}
+.tabs{margin-top:10px;display:flex;gap:18px;border-bottom:1px solid var(--border)}
+.tabs div{padding:7px 2px;font-size:12.5px;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:600}
+.tabs div.active{color:var(--text);border-bottom-color:var(--text)}
+.compare-grid{flex:1;display:flex;min-height:0}
+.compare-col{flex:1;display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--border);background:#0c0c0c}
+.compare-col:last-child{border-right:none}
+.col-head{height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;background:var(--bg-panel);border-bottom:1px solid var(--border);font-size:11.5px;color:var(--text-dim);gap:8px}
+.col-head b{color:var(--text);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.col-head .tools{display:flex;gap:6px;color:var(--text-faint);flex-shrink:0}
+.col-head .tools span{cursor:pointer;width:20px;height:20px;display:grid;place-items:center;border-radius:4px;border:1px solid transparent}
+.col-head .tools span:hover{background:var(--bg-hover);border-color:var(--border);color:var(--text)}
+.col-body{flex:1;position:relative;overflow:auto;display:grid;place-items:center;padding:14px;background-color:#0c0c0c;background-image:linear-gradient(45deg, #141414 25%, transparent 25%), linear-gradient(-45deg, #141414 25%, transparent 25%),linear-gradient(45deg, transparent 75%, #141414 75%), linear-gradient(-45deg, transparent 75%, #141414 75%);background-size:14px 14px;background-position:0 0,0 7px,7px -7px,-7px 0}
+.empty{color:var(--text-dim);font-size:12.5px;background:rgba(0,0,0,.45);padding:8px 12px;border-radius:7px;border:1px dashed var(--border-light)}
+.image-wrap{max-width:100%;max-height:100%;position:relative;filter:drop-shadow(0 12px 30px rgba(0,0,0,.6))}
+.image-wrap img{max-width:560px;width:100%;height:auto;display:block;border-radius:4px}
+.diff-text{width:100%;height:100%;overflow:auto;padding:14px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;line-height:1.5;background:#0f0f0f}
+.diff-line{white-space:pre-wrap;word-break:break-all;padding:1px 8px;border-left:3px solid transparent}
+.diff-line.add{background:rgba(127,201,127,.14);border-left-color:var(--green)}
+.diff-line.del{background:rgba(224,122,122,.14);border-left-color:var(--red)}
+.diff-line.ctx{color:var(--text-dim)}
+.diff-line.placeholder{background:rgba(120,120,120,.07);border-left-color:#3a3a3a;color:#5a5a5a;letter-spacing:2px}
+.diff-line.placeholder::after{content:" —";opacity:.4}
+.diff-hunk{color:var(--blue);margin:10px 0 4px;font-weight:700;font-size:11px}
+.preview-foot{height:38px;display:flex;align-items:center;gap:10px;padding:0 12px;border-top:1px solid var(--border);background:var(--bg-panel);color:var(--text-dim);font-size:12px}
+.preview-foot .spacer{flex:1}
+.zoom{padding:4px 8px;background:var(--bg-elev);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;gap:6px;font-weight:600}
+.range{width:110px;accent-color:var(--accent)}
+.mono{font-family:ui-monospace,Monospace;font-size:11px;color:var(--text-faint)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);display:none;place-items:center;z-index:50}
+.overlay.open{display:grid}
+.modal{width:440px;background:#1e1e1e;border:1px solid var(--border-light);border-radius:12px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.modal h3{font-size:15px;font-weight:700;margin-bottom:6px}
+.modal p{font-size:12.5px;color:var(--text-dim);margin-bottom:16px;line-height:1.45}
+.toggle-row{display:flex;gap:10px;margin-bottom:16px}
+.toggle{flex:1;padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-elev);color:var(--text);cursor:pointer;text-align:center;font-weight:700;font-size:12.5px}
+.toggle.active{background:#2e3a4f;border-color:var(--accent);color:white}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px}
+.progress{height:6px;background:var(--bg-elev);border-radius:99px;overflow:hidden;margin:12px 0;border:1px solid var(--border);display:none}
+.progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.log{font-family:ui-monospace,monospace;font-size:11px;color:var(--text-dim);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px;max-height:140px;overflow:auto;display:none;white-space:pre-wrap}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#1f2937;border:1px solid #374151;color:white;padding:10px 16px;border-radius:9px;font-size:12.5px;box-shadow:0 10px 30px rgba(0,0,0,.5);display:none;z-index:60;max-width:90vw;text-align:center}
+.toast.show{display:block}
+#versionDropdown{position:fixed;display:none;background:var(--bg-panel);border:1px solid var(--border-light);border-radius:10px;box-shadow:0 16px 40px rgba(0,0,0,.55);z-index:30;min-width:300px;max-height:65vh;overflow:auto}
+.ver-row{padding:8px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;border-bottom:1px solid var(--border);transition:.1s}
+.ver-row:hover{background:var(--bg-hover)}
+.ver-row.active{background:var(--bg-elev);border-left:3px solid var(--accent)}
+.ver-env{font-size:10px;padding:2px 6px;border-radius:99px;font-weight:800;border:1px solid transparent;flex-shrink:0}
+.ver-env.DEV{background:rgba(90,169,230,.15);color:#5aa9e6;border-color:rgba(90,169,230,.25)}
+.ver-env.LIVE{background:rgba(127,201,127,.15);color:#7fc97f;border-color:rgba(127,201,127,.25)}
+@media(max-width:1100px){.sidebar{width:230px;min-width:230px}.explorer{width:340px;min-width:300px}}
+@media(max-width:800px){html,body{overflow:auto;height:auto}.app{flex-direction:column;height:auto}.sidebar,.explorer,.preview{width:100%;min-width:0}.preview{height:620px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">≋</div>
+  <div>
+    <div class="title">War Thunder Datamine <span class="subtitle">VROMFS Compare — автономное приложение</span></div>
+  </div>
+  <div class="spacer"></div>
+  <div class="status" id="statusBox"><span class="dot" id="statusDot"></span><span id="statusText">загрузка версий…</span></div>
+  <div style="display:flex;gap:6px">
+    <button id="installBtn" style="display:none;background:var(--accent);color:white;border:none;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">⬇ Установить</button>
+  </div>
+</div>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="compare-box">
+      <div class="compare-head"><h3>Сравнение версий</h3><div class="icon-row"><span title="Обновить список версий" id="refreshBtn">↻</span><span title="Поменять местами" id="swapBtn">⇄</span></div></div>
+
+      <div class="field">
+        <label>Версия A <small>— старая</small></label>
+        <div class="select" id="baseSelect"><span><b id="baseLabel">—</b> <span style="color:var(--text-faint);font-size:11px" id="baseDate"></span></span><span class="chev">▾</span></div>
+        <input id="baseManual" placeholder="или введи вручную: 2.58.0.28" style="width:100%;margin-top:6px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:6px;font-size:11.5px;outline:none;display:none">
+        <div style="display:flex;gap:6px;margin-top:4px"><a href="#" id="baseManualToggle" style="font-size:10.5px;color:var(--accent);text-decoration:none">⌨ Ввести вручную</a><span style="font-size:10.5px;color:var(--text-faint)" id="baseManualHint"></span></div>
+      </div>
+      <div class="field">
+        <label>Версия B <small>— новая</small></label>
+        <div class="select" id="cmpSelect"><span><b id="cmpLabel">—</b> <span style="color:var(--text-faint);font-size:11px" id="cmpDate"></span></span><span class="chev">▾</span></div>
+        <input id="cmpManual" placeholder="или введи вручную: 2.59.0.16" style="width:100%;margin-top:6px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:6px;font-size:11.5px;outline:none;display:none">
+        <div style="display:flex;gap:6px;margin-top:4px"><a href="#" id="cmpManualToggle" style="font-size:10.5px;color:var(--accent);text-decoration:none">⌨ Ввести вручную</a><span style="font-size:10.5px;color:var(--text-faint)" id="cmpManualHint"></span></div>
+      </div>
+
+      <div class="auto-row">
+        <input type="checkbox" id="autoCheck" checked>
+        <label for="autoCheck" style="flex:1;cursor:pointer">Авто-скачка новых версий</label>
+        <span id="autoState" style="font-size:10px;padding:2px 6px;border-radius:99px;background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.25);font-weight:700">ВКЛ</span>
+      </div>
+      <div style="margin-top:6px;font-size:10.5px;color:var(--text-faint);line-height:1.3">Проверяет GitHub каждые 60с. Найдёт новый DEV — покажет синюю точку.</div>
+    </div>
+
+    <div class="tree" id="tree"></div>
+
+    <div class="filechanges">
+      <h4>Изменения <b id="changeCount">—</b> <span id="changeHint" style="font-size:10px;text-transform:none;letter-spacing:0;font-weight:600;color:var(--text-faint)"></span></h4>
+      <div class="legend" id="legend">
+        <div data-filter="added"><span class="sq added">+</span> Добавлено <span style="margin-left:auto;color:var(--green);font-weight:800" id="cntAdded">0</span></div>
+        <div data-filter="modified"><span class="sq modified">●</span> Изменено <span style="margin-left:auto;color:var(--yellow);font-weight:800" id="cntMod">0</span></div>
+        <div data-filter="deleted"><span class="sq deleted">—</span> Удалено <span style="margin-left:auto;color:var(--red);font-weight:800" id="cntDel">0</span></div>
+      </div>
+      <div style="margin-top:6px;display:flex;gap:6px">
+        <button id="resetFilters" style="flex:1;background:var(--bg-elev);border:1px solid var(--border);color:var(--text-faint);padding:5px;border-radius:6px;font-size:11px;cursor:pointer">Сбросить фильтры</button>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--text-faint)"><span id="totalFiles">—</span> • <span id="vromfsStats">vromfs</span></div>
+    </div>
+
+    <div class="bottom-actions">
+      <button class="btn primary" id="compareBtn"><span>⚡</span> Сравнить A → B</button>
+      <button class="btn" id="downloadJsonBtn"><span>⬇</span> Скачать JSON отчёт</button>
+      <button class="btn ghost" id="tokenBtn"><span>🔑</span> GitHub токен (для лимитов)</button>
+      <div class="small-note">Открыл файл напрямую? Всё работает без сервера — данные тянутся с <b>raw.githubusercontent</b> напрямую.</div>
+    </div>
+  </div>
+
+  <div class="explorer">
+    <div class="exp-header">
+      <div class="exp-title"><h3>Файлы <span id="expCount">—</span></h3><div class="actions"><span title="Скачать отчёт" id="downloadBtn">↓</span><span title="Копировать список" id="copyListBtn">⧉</span></div></div>
+      <div class="search-box"><span class="sicon">⌕</span><input id="searchInput" placeholder="Поиск: mig_35, aces, tex...  ( / )"></div>
+      <div class="filters">
+        <div class="f"><label>Показать</label><select id="showFilter"><option value="all">Все</option><option value="added">Только добавленные</option><option value="modified">Только изменённые</option><option value="deleted">Только удалённые</option></select></div>
+        <div class="f"><label>Сорт</label><select id="sortFilter"><option value="name">По имени</option><option value="status">По статусу</option><option value="vromfs">По vromfs</option></select></div>
+      </div>
+      <div style="margin-top:6px;display:flex;gap:6px">
+        <select id="vromfsFilter" style="flex:1;background:var(--bg-elev);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-size:11.5px">
+          <option value="all">Все vromfs</option>
+          <option value="aces.vromfs.bin">aces.vromfs.bin</option>
+          <option value="tex.vromfs.bin">tex.vromfs.bin — скины/текстуры</option>
+          <option value="char.vromfs.bin">char.vromfs.bin — модели</option>
+          <option value="gui.vromfs.bin">gui.vromfs.bin — интерфейс</option>
+          <option value="atlases.vromfs.bin">atlases.vromfs.bin</option>
+          <option value="images.vromfs.bin">images.vromfs.bin</option>
+        </select>
+      </div>
+      <div id="limitWarn" style="display:none;margin-top:6px;padding:6px 8px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:#fbbf24;border-radius:6px;font-size:11px">⚠️ Показаны первые 300 файлов — GitHub обрезал ответ. Сузь фильтр vromfs.</div>
+    </div>
+    <div class="order-row"><span>Сортировка</span><span style="cursor:pointer;font-weight:700" id="orderBtn">A → Я ↑</span></div>
+    <div class="file-list" id="fileList"><div style="padding:30px;text-align:center;color:var(--text-dim)"><div style="width:20px;height:20px;border:2px solid var(--border-light);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px"></div>Загружаю версии с GitHub…<style>@keyframes spin{to{transform:rotate(360deg)}}</style></div></div>
+  </div>
+
+  <div class="preview">
+    <div class="preview-head">
+      <div class="meta">
+        <div class="fileicon" id="fileIcon">＋</div>
+        <div class="filename" id="previewName">Выбери файл</div>
+        <span class="badge added" id="previewBadge" style="display:none">—</span>
+        <div style="margin-left:auto;display:flex;gap:6px;color:var(--text-faint)">
+          <span style="width:22px;height:22px;display:grid;place-items:center;border-radius:6px;cursor:pointer;border:1px solid transparent" title="Копировать путь" id="copyPath">⧉</span>
+          <span style="width:22px;height:22px;display:grid;place-items:center;border-radius:6px;cursor:pointer;border:1px solid transparent" title="Открыть RAW" id="openRaw">↗</span>
+        </div>
+      </div>
+      <div class="path2" id="previewPath">Слева выбери любой файл — справа увидишь что добавилось / изменилось / удалилось. Для картинок — предпросмотр, для .blk — diff.</div>
+      <div class="tabs" id="tabs"><div class="active" data-tab="preview">Превью</div><div data-tab="diff">Diff текст</div><div data-tab="raw">Raw ссылка</div></div>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-col">
+        <div class="col-head"><b id="colBaseLabel">Версия A</b><div class="tools"><span id="dlBase" title="Скачать файл A">↓</span></div></div>
+        <div class="col-body" id="colBase"><span class="empty">Выбери версии и нажми Сравнить</span></div>
+      </div>
+      <div class="compare-col">
+        <div class="col-head"><b id="colCmpLabel">Версия B</b><div class="tools"><span id="dlCmp" title="Скачать файл B">↓</span></div></div>
+        <div class="col-body" id="colCmp"><span class="empty">—</span></div>
+      </div>
+    </div>
+
+    <div class="preview-foot">
+      <span class="mono" id="sizeInfo">—</span>
+      <div class="spacer"></div>
+      <div class="zoom">100% <span style="color:var(--text-faint)">▾</span></div>
+      <input type="range" class="range" min="25" max="200" value="100" id="zoomRange">
+      <span style="font-size:11px;color:var(--text-faint)">DEV <b id="footVer">—</b></span>
+    </div>
+  </div>
+</div>
+
+<div id="versionDropdown"></div>
+
+<div class="overlay" id="tokenOverlay">
+  <div class="modal">
+    <h3>GitHub токен</h3>
+    <p>Без токена — 60 запросов/час. С токеном — 5000/час. Токен хранится только в браузере (localStorage), никуда не улетает. Создай на <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--accent)">github.com/settings/tokens</a> (classic, без галочек).</p>
+    <input id="tokenInput" placeholder="ghp_xxxxxxxxxxxxxxxx" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;outline:none;margin-bottom:12px">
+    <div class="modal-actions">
+      <button class="btn ghost" id="cancelToken">Отмена</button>
+      <button class="btn ghost" id="clearToken">Удалить</button>
+      <button class="btn primary" id="saveToken">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const GITHUB = "https://api.github.com/repos/gszabi99/War-Thunder-Datamine";
+const RAW = "https://raw.githubusercontent.com/gszabi99/War-Thunder-Datamine";
+
+let versions = [];
+let baseVersion = null;
+let cmpVersion = null;
+let files = []; // {filename, short_path, status, additions, deletions, patch, vromfs, type, ext}
+let filtered = [];
+let selectedPath = null;
+let activeTab = 'preview';
+let searchQuery = '', sortBy='name', ascending=true;
+let autoEnabled = true;
+let pollTimer = null;
+let renderVersionDropdownCache = null;
+
+const treeData = [
+  {name:'Все файлы', count:'—', active:true, children:[]},
+  {name:'aces.vromfs.bin', count:'—', vromfs:'aces.vromfs.bin'},
+  {name:'tex.vromfs.bin', count:'—', vromfs:'tex.vromfs.bin'},
+  {name:'char.vromfs.bin', count:'—', vromfs:'char.vromfs.bin'},
+  {name:'gui.vromfs.bin', count:'—', vromfs:'gui.vromfs.bin'},
+  {name:'atlases.vromfs.bin', count:'—'},
+  {name:'images.vromfs.bin', count:'—'},
+];
+
+function classifyEnv(tag){
+  try{
+    const p=tag.split('.'); const m=parseInt(p[1]); const pat=parseInt(p[2]);
+    if(m>=59) return 'DEV';
+    if(m>=58 && pat>=18) return 'DEV';
+    return 'LIVE';
+  }catch{return 'DEV'}
+}
+function token(){ return localStorage.getItem('gh_token')||''; }
+function headers(){
+  const h={"Accept":"application/vnd.github.v3+json"};
+  const t=token();
+  if(t) h["Authorization"]="token "+t;
+  return h;
+}
+function setStatus(text, state='loading'){
+  const d=document.getElementById('statusDot'), t=document.getElementById('statusText');
+  t.textContent=text;
+  d.className='dot '+(state==='ok'?'ok':state==='err'?'err':'');
+  if(state==='ok') d.style.background='#34d399';
+  else if(state==='err') d.style.background='#e07a7a';
+  else d.style.background='#f59e0b';
+}
+function showToast(msg, ms=2800){
+  const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'), ms);
+}
+function escapeHtml(s){ return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+async function loadVersions(isPoll=false, retryCount=0){
+  if(!isPoll) setStatus('загрузка версий…','loading');
+  try{
+    // пробуем 2 страницы по 100 чтобы покрыть 2.58 и 2.59
+    let allTags=[];
+    for(let page=1; page<=2; page++){
+      const r = await fetch(`${GITHUB}/tags?per_page=100&page=${page}`, {headers: headers()});
+      if(r.status===403){
+        const remaining = r.headers.get('x-ratelimit-remaining');
+        if(remaining==='0') throw new Error('Лимит GitHub 60 запросов/час исчерпан — введи токен (кнопка 🔑) или подожди 1ч');
+        throw new Error('GitHub 403');
+      }
+      if(!r.ok) throw new Error('GitHub '+r.status);
+      const tags = await r.json();
+      if(!tags.length) break;
+      allTags = allTags.concat(tags);
+      if(tags.length<100) break;
+    }
+    const tags = allTags;
+    const newVers = tags.map(t=>({
+      id:t.name, name:t.name, label:t.name,
+      env: classifyEnv(t.name),
+      sha: t.commit.sha.slice(0,7),
+      raw:t
+    }));
+    // detect new version for auto-download
+    if(isPoll && versions.length && newVers.length && newVers[0].id!==versions[0].id){
+      showToast(`🆕 Новая версия найдена: ${newVers[0].id} — автоматически подтянута!`, 4000);
+      // optional: add blue dot
+      document.getElementById('statusDot').style.background='#3b82f6';
+    }
+    versions = newVers;
+    if(!baseVersion || !cmpVersion){
+      // 2) АВТОПОДСТАНОВКА: всегда две последние версии (свежие), не древние
+      if(versions.length>=2){ baseVersion=versions[1]; cmpVersion=versions[0]; }
+      else { baseVersion=versions[0]; cmpVersion=versions[0]; }
+      // если пользователь первый раз — покажем подсказку
+      if(!isPoll && versions.length>=2){
+        setTimeout(()=>showToast(`Автовыбраны последние версии: ${baseVersion.id} → ${cmpVersion.id}. Можешь выбрать любые.` ,3500), 800);
+      }
+    } else {
+      // обновляем объекты чтобы sync sha/env если версии уже были выбраны
+      const upd = (v)=> versions.find(x=>x.id===v.id) || v;
+      baseVersion = upd(baseVersion);
+      cmpVersion = upd(cmpVersion);
+    }
+    updateVersionLabels();
+    if(!isPoll) setStatus(`онлайн • ${versions.length} версий • ${versions[0].id} latest`,'ok');
+    else setStatus(`онлайн • ${versions.length} версий • ${versions[0].id} latest`,'ok');
+    renderVersionDropdownCache = null; // invalidate
+    return true;
+  }catch(e){
+    console.error(e);
+    setStatus(e.message.slice(0,60),'err');
+    showToast('Ошибка загрузки версий: '+e.message);
+    // fallback demo
+    if(!versions.length){
+      versions = [
+        {id:'2.58.0.28', name:'2.58.0.28', label:'2.58.0.28', env:'DEV', sha:'5b801b3'},
+        {id:'2.58.0.31', name:'2.58.0.31', label:'2.58.0.31', env:'DEV', sha:'3b66fbc'},
+        {id:'2.59.0.16', name:'2.59.0.16', label:'2.59.0.16', env:'DEV', sha:'371120b'},
+      ];
+      baseVersion=versions[0]; cmpVersion=versions[1];
+      updateVersionLabels();
+    }
+    return false;
+  }
+}
+function updateVersionLabels(){
+  if(baseVersion){ document.getElementById('baseLabel').textContent=baseVersion.id; document.getElementById('baseDate').textContent=baseVersion.env; document.getElementById('colBaseLabel').textContent='A: '+baseVersion.id; }
+  if(cmpVersion){ document.getElementById('cmpLabel').textContent=cmpVersion.id; document.getElementById('cmpDate').textContent=cmpVersion.env; document.getElementById('colCmpLabel').textContent='B: '+cmpVersion.id; document.getElementById('footVer').textContent=cmpVersion.id; }
+}
+
+async function loadCompare(){
+  if(!baseVersion || !cmpVersion){ showToast('Выбери две версии'); return; }
+  if(baseVersion.id===cmpVersion.id){ showToast('Выбери разные версии'); return; }
+  const btn=document.getElementById('compareBtn');
+  btn.textContent='⏳ Сравниваю…'; btn.disabled=true;
+  document.getElementById('fileList').innerHTML=`<div style="padding:30px;text-align:center;color:var(--text-dim)"><div style="width:20px;height:20px;border:2px solid var(--border-light);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px"></div>Сравниваю ${baseVersion.id} → ${cmpVersion.id}…<br><span style="font-size:11px">Тяну с api.github.com (без сервера)</span></div>`;
+  try{
+    const url = `${GITHUB}/compare/${encodeURIComponent(baseVersion.id)}...${encodeURIComponent(cmpVersion.id)}`;
+    const r = await fetch(url, {headers: headers()});
+    if(r.status===404) throw new Error('Версии не найдены на GitHub — проверь теги');
+    if(r.status===403) throw new Error('Лимит GitHub — введи токен 🔑');
+    if(!r.ok) throw new Error('GitHub '+r.status+' '+ (await r.text()).slice(0,200));
+    const data = await r.json();
+    const truncated = data.truncated;
+    document.getElementById('limitWarn').style.display = truncated ? 'block' : 'none';
+    files = (data.files||[]).map(f=>{
+      let status=f.status;
+      if(status==='removed') status='deleted';
+      if(status==='renamed') status='modified';
+      let vromfs='';
+      if(f.filename.includes('.vromfs.bin_u')){
+        const parts=f.filename.split('.vromfs.bin_u');
+        vromfs=parts[0]+'.vromfs.bin';
+      }
+      const ext=(f.filename.split('.').pop()||'').toLowerCase();
+      const isImg=['png','jpg','jpeg','dds','tga','svg','webp','avif'].includes(ext);
+      const type = isImg ? ext : (ext.includes('blk')||ext==='blks'||ext==='blks'?'blk':(ext||'bin'));
+      // short_path like /aircrafts/mig_35.png
+      let short = f.filename;
+      if(f.filename.includes('.vromfs.bin_u/')) short = '/'+f.filename.split('.vromfs.bin_u/')[1];
+      else if(f.filename.includes('/')) short = '/'+f.filename.split('/').slice(1).join('/');
+      return {
+        filename:f.filename,
+        short_path: short,
+        status, additions:f.additions, deletions:f.deletions, changes:f.changes,
+        patch:f.patch||'',
+        blob_url:f.blob_url, raw_url:f.raw_url,
+        vromfs, type, ext,
+        previous_filename:f.previous_filename
+      };
+    });
+    // sort: added first
+    const order={added:0, modified:1, deleted:2};
+    files.sort((a,b)=> (order[a.status]??9)-(order[b.status]??9) || a.filename.localeCompare(b.filename));
+    // stats
+    const added=files.filter(f=>f.status==='added').length;
+    const modified=files.filter(f=>f.status==='modified').length;
+    const deleted=files.filter(f=>f.status==='deleted').length;
+    document.getElementById('cntAdded').textContent=added;
+    document.getElementById('cntMod').textContent=modified;
+    document.getElementById('cntDel').textContent=deleted;
+    document.getElementById('changeCount').textContent=files.length;
+    document.getElementById('changeHint').textContent = truncated ? ' (обрезано 300)' : '';
+    document.getElementById('totalFiles').textContent = `${files.length} изменений`;
+    // vromfs stats
+    const vm={};
+    files.forEach(f=>{ const k=f.vromfs||'other'; vm[k]=(vm[k]||0)+1; });
+    document.getElementById('vromfsStats').textContent = Object.entries(vm).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>`${k.replace('.vromfs.bin','')}:${v}`).join(' • ') || 'vromfs';
+    // tree counts update
+    treeData.forEach(n=>{
+      if(n.vromfs) n.count = vm[n.vromfs]||0;
+    });
+    renderTree();
+    // 1) СБРОС ФИЛЬТРОВ — чтобы не было "Нет файлов по фильтру" при 17 изменениях
+    document.getElementById('vromfsFilter').value='all';
+    document.getElementById('showFilter').value='all';
+    document.querySelectorAll('.legend div').forEach(d=>d.classList.remove('active'));
+    searchQuery=''; document.getElementById('searchInput').value='';
+    // сбрасываем подсветку дерева на "Все файлы"
+    treeData.forEach(n=>n.active=false);
+    if(treeData[0]) treeData[0].active=true;
+    renderTree();
+    selectedPath = files[0]?.filename || null;
+    renderFileList();
+    renderPreview();
+    btn.textContent='⚡ Сравнить A → B'; btn.disabled=false;
+    showToast(`Готово: ${files.length} файлов • +${added} ~${modified} -${deleted}`);
+  }catch(e){
+    console.error(e);
+    btn.textContent='⚡ Сравнить A → B'; btn.disabled=false;
+    document.getElementById('fileList').innerHTML=`<div style="padding:20px;text-align:center;color:var(--red)">${escapeHtml(e.message)}<br><br><button class="btn primary" onclick="loadCompare()" style="margin:0 auto">Попробовать снова</button></div>`;
+    showToast('Ошибка: '+e.message);
+  }
+}
+
+// Tree
+function renderTree(){
+  const c=document.getElementById('tree'); c.innerHTML='';
+  treeData.forEach((node, idx)=>{
+    const row=document.createElement('div');
+    row.className='tree-item'+(node.active?' active':'');
+    row.style.paddingLeft='8px';
+    const isVromfs = !!node.vromfs;
+    row.innerHTML=`<span style="font-size:11px">${isVromfs?'▭':'⬢'}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;font-weight:600">${node.name}</span><span class="cnt">${node.count}</span>`;
+    row.onclick=()=>{
+      document.querySelectorAll('.tree-item').forEach(e=>e.classList.remove('active'));
+      row.classList.add('active');
+      if(node.vromfs){
+        document.getElementById('vromfsFilter').value=node.vromfs;
+      } else {
+        document.getElementById('vromfsFilter').value='all';
+      }
+      renderFileList();
+    };
+    c.appendChild(row);
+  });
+  // also add All
+  const allRow=c.firstChild;
+  if(allRow) allRow.onclick=()=>{ document.querySelectorAll('.tree-item').forEach(e=>e.classList.remove('active')); allRow.classList.add('active'); document.getElementById('vromfsFilter').value='all'; renderFileList(); };
+}
+
+function renderFileList(){
+  const listEl=document.getElementById('fileList');
+  let list = [...files];
+  const activeFilter = document.querySelector('.legend div.active');
+  let statusFilter='all';
+  if(activeFilter) statusFilter=activeFilter.dataset.filter;
+  const showVal=document.getElementById('showFilter').value;
+  if(showVal!=='all') statusFilter=showVal.startsWith('added')?'added':showVal.startsWith('modified')?'modified':'deleted';
+  if(statusFilter!=='all') list=list.filter(f=>f.status===statusFilter);
+  const vromfsVal=document.getElementById('vromfsFilter').value;
+  if(vromfsVal!=='all') list=list.filter(f=>(f.vromfs||'').includes(vromfsVal));
+  if(searchQuery){
+    const q=searchQuery.toLowerCase();
+    list=list.filter(f=> f.filename.toLowerCase().includes(q) || f.short_path.toLowerCase().includes(q));
+  }
+  list.sort((a,b)=>{
+    if(sortBy==='name') return a.filename.localeCompare(b.filename);
+    if(sortBy==='status') return a.status.localeCompare(b.status);
+    if(sortBy==='vromfs') return (a.vromfs||'').localeCompare(b.vromfs||'');
+    return 0;
+  });
+  if(!ascending) list.reverse();
+  filtered=list;
+  document.getElementById('expCount').textContent=list.length + (list.length!==files.length ? ` / ${files.length}`:'');
+
+  listEl.innerHTML='';
+  if(!files.length){
+    listEl.innerHTML=`<div style="padding:20px;text-align:center;color:var(--text-faint)">Нажми <b>Сравнить A → B</b> чтобы загрузить изменения<br><span style="font-size:11px">Выбери любые две версии слева</span></div>`;
+    return;
+  }
+  if(!list.length){
+    if(files.length>0){
+      listEl.innerHTML=`<div style="padding:20px;text-align:center;color:var(--text-faint)">
+        Нет файлов по фильтру<br><span style="font-size:11px">Всего ${files.length} изменений, но фильтры скрыли всё</span><br>
+        <button onclick="document.getElementById('resetFilters').click()" style="margin-top:10px;background:var(--accent);color:white;border:none;padding:6px 12px;border-radius:6px;font-size:11px;cursor:pointer">Сбросить фильтры</button>
+      </div>`;
+    } else {
+      listEl.innerHTML=`<div style="padding:20px;text-align:center;color:var(--text-faint)">Нет файлов по фильтру<br><span style="font-size:11px">Попробуй сменить фильтр</span></div>`;
+    }
+    return;
+  }
+  list.forEach(f=>{
+    const isActive = f.filename===selectedPath;
+    const row=document.createElement('div');
+    row.className=`file-row ${f.status} ${isActive?'active':''}`;
+    const icon=f.status==='added'?'+':f.status==='modified'?'●':'—';
+    const delta=f.status==='added'?`<span style="color:var(--green)">+${f.additions||1}</span>`: f.status==='modified'?`<span style="color:var(--green)">+${f.additions}</span> <span style="color:var(--red)">-${f.deletions}</span>`: `<span style="color:var(--red)">-${f.deletions||1}</span>`;
+    const vtag=f.vromfs?f.vromfs.replace('.vromfs.bin',''):'other';
+    row.innerHTML=`<span class="icon">${icon}</span><span class="path" title="${f.filename}">${f.short_path}</span><span class="vtag">${vtag}</span><span class="delta">${delta}</span>`;
+    row.onclick=()=>{ selectedPath=f.filename; renderFileList(); renderPreview(); };
+    listEl.appendChild(row);
+  });
+}
+
+function renderPreview(){
+  const f = files.find(x=>x.filename===selectedPath) || files[0];
+  const baseCol=document.getElementById('colBase'), cmpCol=document.getElementById('colCmp');
+  if(!f){
+    document.getElementById('previewName').textContent='Выбери файл';
+    document.getElementById('previewPath').textContent='—';
+    document.getElementById('previewBadge').style.display='none';
+    baseCol.innerHTML=`<span class="empty">Нет данных — нажми Сравнить</span>`;
+    cmpCol.innerHTML=`<span class="empty">—</span>`;
+    return;
+  }
+  const name=f.short_path.split('/').pop();
+  document.getElementById('previewName').textContent=name;
+  document.getElementById('previewPath').textContent=f.filename;
+  const badge=document.getElementById('previewBadge');
+  badge.style.display='inline-block';
+  badge.textContent=f.status==='added'?'Добавлено':f.status==='modified'?'Изменено':'Удалено';
+  badge.className='badge '+f.status;
+  const ic=document.getElementById('fileIcon');
+  ic.textContent=f.status==='added'?'+':f.status==='modified'?'●':'—';
+  ic.style.background=f.status==='added'?'var(--green-bg)':f.status==='modified'?'var(--yellow-bg)':'rgba(224,122,122,.12)';
+  ic.style.color=f.status==='added'?'var(--green)':f.status==='modified'?'var(--yellow)':'var(--red)';
+
+  document.getElementById('colBaseLabel').textContent=`A: ${baseVersion.id}`;
+  document.getElementById('colCmpLabel').textContent=`B: ${cmpVersion.id}`;
+  document.getElementById('sizeInfo').textContent = f.status==='added'?`0 → +${f.additions}`: f.status==='deleted'?`-${f.deletions} → 0`: `+${f.additions} / -${f.deletions}`;
+
+  const isImg = ['png','jpg','jpeg','dds','tga','svg','webp','avif'].includes((f.ext||'').toLowerCase());
+  const rawA = `${RAW}/${encodeURIComponent(baseVersion.id).replace(/%2F/g,'/')}/${f.filename}`;
+  const rawB = `${RAW}/${encodeURIComponent(cmpVersion.id).replace(/%2F/g,'/')}/${f.filename}`;
+  // need encode path segments separately to keep /
+  const encodePath = p=>p.split('/').map(encodeURIComponent).join('/');
+  const rawA2 = `${RAW}/${baseVersion.id}/${encodePath(f.filename)}`;
+  const rawB2 = `${RAW}/${cmpVersion.id}/${encodePath(f.filename)}`;
+
+  if(isImg){
+    if(f.status==='added'){
+      baseCol.innerHTML=`<span class="empty">Добавлено — в A файла не было</span>`;
+      cmpCol.innerHTML=`<div class="image-wrap"><img src="${rawB2}" loading="lazy" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x220/1a1a1a/666?text=preview+error'"><div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.65);color:white;font-size:10px;padding:3px 6px;border-radius:4px;border:1px solid rgba(255,255,255,.15)">${f.type} • ${f.vromfs}</div></div>`;
+    } else if(f.status==='deleted'){
+      baseCol.innerHTML=`<div class="image-wrap"><img src="${rawA2}" loading="lazy" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x220/1a1a1a/666?text=preview+error'"></div>`;
+      cmpCol.innerHTML=`<span class="empty">Удалено — в B файла нет</span>`;
+    } else {
+      // modified image — show both
+      baseCol.innerHTML=`<div class="image-wrap"><img src="${rawA2}" loading="lazy" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x220/1a1a1a/666?text=no+preview'"><div style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.6);color:white;font-size:10px;padding:2px 6px;border-radius:4px">A: ${baseVersion.id}</div></div>`;
+      cmpCol.innerHTML=`<div class="image-wrap"><img src="${rawB2}" loading="lazy" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x220/1a1a1a/666?text=no+preview'"><div style="position:absolute;bottom:8px;right:8px;background:rgba(245,158,11,.9);color:black;font-size:10px;padding:3px 6px;border-radius:4px;font-weight:800">B: изменено</div></div>`;
+    }
+  } else {
+    // text / blk — WinMerge стиль: серый прочерк где строки нет
+    if(activeTab==='raw'){
+      baseCol.innerHTML=`<div class="diff-text"><div style="margin-bottom:10px"><a href="${rawA2}" target="_blank" style="color:var(--accent);font-weight:700">Открыть A RAW ↗</a></div><div style="font-size:11px;color:var(--text-faint);word-break:break-all">${escapeHtml(rawA2)}</div><div style="margin-top:12px;font-size:11px;color:var(--text-dim)">Для .blk/.blks файлов открой вкладку <b>Diff текст</b> — там WinMerge подсветка с серыми прочерками.</div></div>`;
+      cmpCol.innerHTML=`<div class="diff-text"><div style="margin-bottom:10px"><a href="${rawB2}" target="_blank" style="color:var(--accent);font-weight:700">Открыть B RAW ↗</a></div><div style="font-size:11px;color:var(--text-faint);word-break:break-all">${escapeHtml(rawB2)}</div></div>`;
+    } else {
+      const patch=f.patch||'';
+      if(!patch){
+        const empty=`<div class="diff-text"><span class="empty">Нет текстового diff — бинарный файл<br><span style="font-size:11px;color:var(--text-faint)">Открой Raw чтобы скачать</span></span></div>`;
+        if(f.status==='added'){ baseCol.innerHTML=`<span class="empty">Добавлено — файла не было в A</span>`; cmpCol.innerHTML=empty; }
+        else if(f.status==='deleted'){ baseCol.innerHTML=empty; cmpCol.innerHTML=`<span class="empty">Удалено — файла нет в B</span>`; }
+        else { baseCol.innerHTML=empty; cmpCol.innerHTML=empty; }
+      } else if(f.status==='added'){
+        let left=`<div class="diff-text"><div style="color:var(--text-faint);font-size:10px;margin-bottom:8px">${escapeHtml(f.filename)} • ${baseVersion.id} (нет файла)</div>`;
+        let right=`<div class="diff-text"><div style="color:var(--text-faint);font-size:10px;margin-bottom:8px">${escapeHtml(f.filename)} • ${cmpVersion.id}</div>`;
+        patch.split('\n').forEach(l=>{
+          if(l.startsWith('@@')){ left+=`<div class="diff-hunk">${escapeHtml(l)}</div>`; right+=`<div class="diff-hunk">${escapeHtml(l)}</div>`; }
+          else if(l.startsWith('+') && !l.startsWith('+++')){ left+=`<div class="diff-line placeholder"></div>`; right+=`<div class="diff-line add">${escapeHtml(l)}</div>`; }
+          else if(l.startsWith('diff')||l.startsWith('index')||l.startsWith('---')||l.startsWith('+++')){}
+          else if(l.trim()!==''){ const ctx=l.startsWith(' ')?l.slice(1):l; left+=`<div class="diff-line placeholder"></div>`; right+=`<div class="diff-line ctx"> ${escapeHtml(ctx)}</div>`; }
+        });
+        left+=`</div>`; right+=`</div>`;
+        baseCol.innerHTML=left; cmpCol.innerHTML=right;
+      } else if(f.status==='deleted'){
+        let left=`<div class="diff-text"><div style="color:var(--text-faint);font-size:10px;margin-bottom:8px">${escapeHtml(f.filename)} • ${baseVersion.id}</div>`;
+        let right=`<div class="diff-text"><div style="color:var(--text-faint);font-size:10px;margin-bottom:8px">${escapeHtml(f.filename)} • ${cmpVersion.id} (удалён)</div>`;
+        patch.split('\n').forEach(l=>{
+          if(l.startsWith('@@')){ left+=`<div class="diff-hunk">${escapeHtml(l)}</div>`; right+=`<div class="diff-hunk">${escapeHtml(l)}</div>`; }
+          else if(l.startsWith('-') && !l.startsWith('---')){ left+=`<div class="diff-line del">${escapeHtml(l)}</div>`; right+=`<div class="diff-line placeholder"></div>`; }
+        });
+        left+=`</div>`; right+=`</div>`;
+        baseCol.innerHTML=left; cmpCol.innerHTML=right;
+      } else {
+        let left=`<div class="diff-text"><div style="color:var(--text-faint);font-size:10px;margin-bottom:8px">${escapeHtml(f.filename)} • ${baseVersion.id}</div>`;
+        let right=`<div class="diff-text"><div style="color:var(--text-faint);font-size:10px;margin-bottom:8px">${escapeHtml(f.filename)} • ${cmpVersion.id}</div>`;
+        const lines=patch.split('\n');
+        for(let i=0;i<lines.length;i++){
+          const l=lines[i];
+          if(l.startsWith('@@')){ left+=`<div class="diff-hunk">${escapeHtml(l)}</div>`; right+=`<div class="diff-hunk">${escapeHtml(l)}</div>`; }
+          else if(l.startsWith('-') && !l.startsWith('---')){
+            const next=lines[i+1]||'';
+            if(next.startsWith('+') && !next.startsWith('+++')){
+              left+=`<div class="diff-line del">${escapeHtml(l)}</div>`;
+              right+=`<div class="diff-line add">${escapeHtml(next)}</div>`;
+              i++;
+            } else {
+              left+=`<div class="diff-line del">${escapeHtml(l)}</div>`;
+              right+=`<div class="diff-line placeholder"></div>`;
+            }
+          } else if(l.startsWith('+') && !l.startsWith('+++')){
+            left+=`<div class="diff-line placeholder"></div>`;
+            right+=`<div class="diff-line add">${escapeHtml(l)}</div>`;
+          } else if(l.startsWith('diff')||l.startsWith('index')||l.startsWith('---')||l.startsWith('+++')){}
+          else {
+            if(l.trim()===''&&i>0) continue;
+            const ctx=l.startsWith(' ') ? l.slice(1) : l;
+            if(ctx.trim()==='') continue;
+            left+=`<div class="diff-line ctx"> ${escapeHtml(ctx)}</div>`;
+            right+=`<div class="diff-line ctx"> ${escapeHtml(ctx)}</div>`;
+          }
+        }
+        left+=`</div>`; right+=`</div>`;
+        baseCol.innerHTML=left; cmpCol.innerHTML=right;
+      }
+    }
+  }
+}
+
+// Version dropdown
+function buildVersionDropdown(anchor, onSelect, currentId){
+  const dd=document.getElementById('versionDropdown');
+  dd.innerHTML='';
+  const search = document.createElement('div');
+  search.style.padding='8px'; search.style.borderBottom='1px solid var(--border)'; search.style.position='sticky'; search.style.top='0'; search.style.background='var(--bg-panel)';
+  search.innerHTML=`<input id="verSearch" placeholder="Поиск версии: 2.59..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:6px;outline:none;font-size:12px">`;
+  dd.appendChild(search);
+
+  const listWrap=document.createElement('div');
+  dd.appendChild(listWrap);
+
+  function renderList(filter=''){
+    listWrap.innerHTML='';
+    const q=filter.toLowerCase();
+    const toShow = q ? versions.filter(v=>v.id.toLowerCase().includes(q)) : versions;
+    toShow.slice(0,80).forEach(v=>{
+      const row=document.createElement('div');
+      row.className='ver-row'+(v.id===currentId?' active':'');
+      const envColor=v.env==='DEV'?'#5aa9e6':'#7fc97f';
+      row.innerHTML=`<span class="ver-env ${v.env}">${v.env}</span><span style="flex:1;font-weight:600;font-size:12.5px">${v.id}</span><span style="font-size:11px;color:var(--text-faint)">${v.sha}</span>`;
+      row.onclick=()=>{ dd.style.display='none'; onSelect(v); };
+      listWrap.appendChild(row);
+    });
+    if(toShow.length===0) listWrap.innerHTML=`<div style="padding:14px;text-align:center;color:var(--text-faint)">Ничего не найдено</div>`;
+    if(toShow.length>80) listWrap.innerHTML+=`<div style="padding:8px;text-align:center;color:var(--text-faint);font-size:11px">Показаны 80 из ${toShow.length} — уточни поиск</div>`;
+  }
+  renderList();
+  const rect=anchor.getBoundingClientRect();
+  dd.style.left=Math.min(rect.left, window.innerWidth-320)+'px';
+  dd.style.top=(rect.bottom+6)+'px';
+  dd.style.display='block';
+  setTimeout(()=>{
+    const inp=document.getElementById('verSearch');
+    if(inp){ inp.focus(); inp.oninput=(e)=>renderList(e.target.value); }
+  },30);
+}
+
+// Wiring - FIXED: теперь можно выбирать любые версии, + ручной ввод
+document.getElementById('baseSelect').onclick=(e)=>{
+  e.preventDefault(); e.stopPropagation();
+  if(!versions.length){ showToast('Версии ещё грузятся, подожди 2с или введи вручную'); return; }
+  buildVersionDropdown(e.currentTarget, (v)=>{
+    baseVersion=v; updateVersionLabels();
+    document.getElementById('baseManual').style.display='none';
+    document.getElementById('baseManual').value='';
+    if(baseVersion.id===cmpVersion.id) showToast('Выбери разные версии');
+    else if(files.length) loadCompare();
+    else showToast(`A → ${v.id} (теперь выбери B и жми Сравнить)`);
+  }, baseVersion?.id);
+};
+document.getElementById('cmpSelect').onclick=(e)=>{
+  e.preventDefault(); e.stopPropagation();
+  if(!versions.length){ showToast('Версии ещё грузятся, подожди 2с или введи вручную'); return; }
+  buildVersionDropdown(e.currentTarget, (v)=>{
+    cmpVersion=v; updateVersionLabels();
+    document.getElementById('cmpManual').style.display='none';
+    document.getElementById('cmpManual').value='';
+    if(baseVersion.id===cmpVersion.id) showToast('Выбери разные версии');
+    else loadCompare();
+  }, cmpVersion?.id);
+};
+// Ручной ввод версий — если дропдаун не подходит или лимит GitHub
+function setupManual(idSelect, idInput, idToggle, isBase){
+  const toggle=document.getElementById(idToggle), input=document.getElementById(idInput);
+  toggle.onclick=(e)=>{
+    e.preventDefault();
+    const isHidden=input.style.display==='none';
+    input.style.display=isHidden?'block':'none';
+    if(isHidden){ input.focus(); toggle.textContent='✕ Скрыть'; }
+    else { toggle.textContent='⌨ Ввести вручную'; }
+  };
+  input.onkeydown=(e)=>{
+    if(e.key==='Enter'){
+      const val=input.value.trim();
+      if(!val){ showToast('Введи тег: 2.59.0.16'); return; }
+      // проверим есть ли такая версия в списке, если нет — создаём фейковую
+      let found=versions.find(v=>v.id===val||v.name===val);
+      if(!found){
+        found={id:val, name:val, label:val, env:classifyEnv(val), sha:'manual'};
+        versions.unshift(found);
+        showToast(`Версия ${val} добавлена вручную (проверим на GitHub при сравнении)`);
+      }
+      if(isBase){ baseVersion=found; } else { cmpVersion=found; }
+      updateVersionLabels();
+      input.style.display='none';
+      toggle.textContent='⌨ Ввести вручную';
+      if(baseVersion.id!==cmpVersion.id) loadCompare();
+    }
+  };
+  input.onblur=()=>{
+    // не скрываем сразу чтобы не мешать Enter
+  };
+}
+setupManual('baseSelect','baseManual','baseManualToggle',true);
+setupManual('cmpSelect','cmpManual','cmpManualToggle',false);
+document.addEventListener('click',(e)=>{
+  const dd=document.getElementById('versionDropdown');
+  if(!e.target.closest('#baseSelect') && !e.target.closest('#cmpSelect') && !e.target.closest('#versionDropdown')) dd.style.display='none';
+});
+document.getElementById('swapBtn').onclick=()=>{
+  const t=baseVersion; baseVersion=cmpVersion; cmpVersion=t;
+  updateVersionLabels();
+  if(files.length) loadCompare();
+};
+document.getElementById('refreshBtn').onclick=()=> loadVersions().then(()=>showToast('Список версий обновлён'));
+document.getElementById('compareBtn').onclick=loadCompare;
+document.getElementById('searchInput').addEventListener('input',e=>{ searchQuery=e.target.value; renderFileList(); });
+document.getElementById('showFilter').onchange=renderFileList;
+document.getElementById('vromfsFilter').onchange=renderFileList;
+document.getElementById('sortFilter').onchange=e=>{ sortBy=e.target.value; renderFileList(); };
+document.getElementById('orderBtn').onclick=e=>{ ascending=!ascending; e.target.textContent=ascending?'A → Я ↑':'Я → A ↓'; renderFileList(); };
+document.querySelectorAll('.legend div').forEach(el=>{
+  el.onclick=()=>{
+    const active=el.classList.contains('active');
+    document.querySelectorAll('.legend div').forEach(d=>d.classList.remove('active'));
+    document.getElementById('showFilter').value='all';
+    if(!active){ el.classList.add('active'); document.getElementById('showFilter').value=el.dataset.filter+' only'; }
+    renderFileList();
+  };
+});
+document.getElementById('resetFilters').onclick=()=>{
+  document.getElementById('vromfsFilter').value='all';
+  document.getElementById('showFilter').value='all';
+  document.querySelectorAll('.legend div').forEach(d=>d.classList.remove('active'));
+  searchQuery=''; document.getElementById('searchInput').value='';
+  document.getElementById('sortFilter').value='name';
+  ascending=true; document.getElementById('orderBtn').textContent='A → Я ↑';
+  // сброс дерева
+  treeData.forEach(n=>n.active=false);
+  if(treeData[0]) treeData[0].active=true;
+  renderTree();
+  renderFileList();
+  showToast('Фильтры сброшены — показано всё');
+};
+document.getElementById('tabs').onclick=e=>{
+  if(e.target.dataset.tab){
+    document.querySelectorAll('#tabs div').forEach(d=>d.classList.remove('active'));
+    e.target.classList.add('active');
+    activeTab=e.target.dataset.tab;
+    renderPreview();
+  }
+};
+document.getElementById('autoCheck').onchange=e=>{
+  autoEnabled=e.target.checked;
+  document.getElementById('autoState').textContent=autoEnabled?'ВКЛ':'ВЫКЛ';
+  document.getElementById('autoState').style.background=autoEnabled?'rgba(52,211,153,.15)':'rgba(224,122,122,.12)';
+  document.getElementById('autoState').style.color=autoEnabled?'#34d399':'#e07a7a';
+  if(autoEnabled) startPoll(); else stopPoll();
+};
+function startPoll(){
+  stopPoll();
+  if(!autoEnabled) return;
+  pollTimer=setInterval(async()=>{
+    await loadVersions(true);
+  }, 60000);
+}
+function stopPoll(){ if(pollTimer) clearInterval(pollTimer); pollTimer=null; }
+document.getElementById('copyPath').onclick=()=>{
+  const t=document.getElementById('previewPath').textContent;
+  navigator.clipboard.writeText(t).then(()=>showToast('Путь скопирован'));
+};
+document.getElementById('openRaw').onclick=()=>{
+  const f=files.find(x=>x.filename===selectedPath);
+  if(!f) return;
+  const url=`${RAW}/${cmpVersion.id}/${f.filename.split('/').map(encodeURIComponent).join('/')}`;
+  window.open(url,'_blank');
+};
+document.getElementById('downloadJsonBtn').onclick=downloadJson;
+document.getElementById('downloadBtn').onclick=downloadJson;
+function downloadJson(){
+  if(!files.length){ showToast('Сначала сравни версии'); return; }
+  const data={ base:baseVersion.id, compare:cmpVersion.id, generated:new Date().toISOString(), stats:{added:files.filter(f=>f.status==='added').length, modified:files.filter(f=>f.status==='modified').length, deleted:files.filter(f=>f.status==='deleted').length, total:files.length}, files };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`wt_diff_${baseVersion.id}_vs_${cmpVersion.id}.json`; a.click();
+  showToast('JSON скачан');
+}
+document.getElementById('copyListBtn').onclick=()=>{
+  if(!filtered.length) return;
+  const txt=filtered.map(f=>`${f.status.padEnd(9)} ${f.filename}`).join('\n');
+  navigator.clipboard.writeText(txt).then(()=>showToast(`Скопировано ${filtered.length} строк`));
+};
+document.getElementById('zoomRange').addEventListener('input',e=>{
+  const v=e.target.value;
+  document.querySelector('.zoom').childNodes[0].textContent=v+'% ';
+  document.querySelectorAll('.image-wrap img').forEach(img=>img.style.transform=`scale(${v/100})`);
+});
+document.getElementById('tokenBtn').onclick=()=> document.getElementById('tokenOverlay').classList.add('open');
+document.getElementById('cancelToken').onclick=()=> document.getElementById('tokenOverlay').classList.remove('open');
+document.getElementById('tokenOverlay').onclick=e=>{ if(e.target.id==='tokenOverlay') e.target.classList.remove('open'); };
+document.getElementById('saveToken').onclick=()=>{
+  const v=document.getElementById('tokenInput').value.trim();
+  if(v) localStorage.setItem('gh_token', v);
+  document.getElementById('tokenOverlay').classList.remove('open');
+  showToast(v?'Токен сохранён':'');
+  loadVersions();
+};
+document.getElementById('clearToken').onclick=()=>{
+  localStorage.removeItem('gh_token');
+  document.getElementById('tokenInput').value='';
+  document.getElementById('tokenOverlay').classList.remove('open');
+  showToast('Токен удалён');
+};
+document.addEventListener('keydown',e=>{
+  if(e.key==='/' && document.activeElement.tagName!=='INPUT'){ e.preventDefault(); document.getElementById('searchInput').focus(); }
+  if(e.key==='Escape'){ document.getElementById('versionDropdown').style.display='none'; document.getElementById('tokenOverlay').classList.remove('open'); }
+});
+document.getElementById('tokenInput').value=token();
+
+// PWA install prompt
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredPrompt=e; document.getElementById('installBtn').style.display='block'; });
+document.getElementById('installBtn').onclick=async()=>{ if(deferredPrompt){ deferredPrompt.prompt(); const r=await deferredPrompt.userChoice; deferredPrompt=null; document.getElementById('installBtn').style.display='none'; }};
+
+// Init
+renderTree();
+loadVersions().then(()=>{
+  // auto compare default pair like screenshot
+  setTimeout(loadCompare, 400);
+  startPoll();
+});
+console.log('WT Standalone ready — без сервера, напрямую с GitHub');
+</script>
+</body>
+</html>
