@@ -148,6 +148,65 @@ button,input,select{font:inherit}
 .ver-env{font-size:10px;padding:2px 6px;border-radius:99px;font-weight:800;border:1px solid transparent;flex-shrink:0}
 .ver-env.DEV{background:rgba(90,169,230,.15);color:#5aa9e6;border-color:rgba(90,169,230,.25)}
 .ver-env.LIVE{background:rgba(127,201,127,.15);color:#7fc97f;border-color:rgba(127,201,127,.25)}
+/* ===== Авто-отчёт (готовый отчёт об изменениях) ===== */
+#reportPanel{flex:1;overflow:auto;display:none;background:var(--bg);min-height:0}
+#reportPanel.open{display:block}
+#reportPanel.open + .preview-foot{display:none}
+.report-toolbar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg-panel);position:sticky;top:0;z-index:5}
+.report-toolbar>b{font-size:12.5px}
+.report-toolbar .rep-tools{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.report-wrap{max-width:960px;margin:0 auto;padding:16px 20px 60px}
+.rep-head{background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.rep-title{font-size:17px;font-weight:800}
+.rep-vers{color:var(--text-dim);font-size:12.5px;margin-top:4px}
+.rep-vers b{color:var(--text)}
+.rep-stats{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.rep-chip{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:99px;border:1px solid var(--border);background:var(--bg-elev);color:var(--text-dim)}
+.rep-chip b{font-size:13px;color:var(--text)}
+.rep-chip.added{color:var(--green);border-color:rgba(127,201,127,.3);background:var(--green-bg)}
+.rep-chip.modified{color:var(--yellow);border-color:rgba(214,181,90,.3);background:var(--yellow-bg)}
+.rep-chip.deleted{color:var(--red);border-color:rgba(224,122,122,.3);background:rgba(224,122,122,.12)}
+.rbtn{padding:7px 12px;border-radius:7px;border:1px solid var(--border);background:var(--bg-elev);color:var(--text);cursor:pointer;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:.15s}
+.rbtn:hover{background:var(--bg-hover);border-color:var(--border-light)}
+.rep-section{background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.rep-sec-title{font-size:13px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.rep-sec-title .cnt{margin-left:auto;font-size:11px;color:var(--text-faint);font-weight:600}
+.rep-high{display:flex;gap:9px;align-items:flex-start;padding:7px 10px;border-radius:7px;background:var(--bg);border:1px solid var(--border);margin-bottom:6px;font-size:12.5px;line-height:1.4}
+.rep-high .ico{flex-shrink:0}
+.rep-file{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;background:var(--bg);border:1px solid var(--border);margin-bottom:4px;flex-wrap:wrap}
+.rep-file .fname{font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:700}
+.rep-file .fdelta{font-size:11px;color:var(--text-faint);font-family:ui-monospace,monospace}
+.rep-file .cat-ico{font-size:13px}
+.rep-filepath{font-size:10.5px;color:var(--text-faint);font-family:ui-monospace,monospace;padding:0 10px;margin:-2px 0 6px;word-break:break-all}
+.vbadge{font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;letter-spacing:.03em;white-space:nowrap}
+.vbadge.buff{background:var(--green-bg);color:var(--green);border:1px solid rgba(127,201,127,.3)}
+.vbadge.nerf{background:rgba(224,122,122,.12);color:var(--red);border:1px solid rgba(224,122,122,.3)}
+.vbadge.change{background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(214,181,90,.3)}
+.rep-changes{margin:0 0 10px 4px;padding-left:12px;border-left:2px solid var(--border);display:flex;flex-direction:column;gap:3px}
+.rep-ch{font-size:12px;color:var(--text-dim);font-family:ui-monospace,Menlo,monospace;line-height:1.45;word-break:break-word}
+.rep-ch .pname{color:var(--text);font-weight:600}
+.rep-ch .pv{color:var(--text-dim)}
+.rep-ch .arrow{color:var(--text-faint)}
+.rep-ch .pdelta{font-weight:700}
+.rep-ch .pdelta.delta-up{color:var(--green)}
+.rep-ch .pdelta.delta-down{color:var(--red)}
+.rep-ch.add{color:var(--green)}
+.rep-ch.del{color:var(--red)}
+.rep-more{font-size:11px;color:var(--text-faint);font-style:italic;margin-top:2px}
+.rep-list{display:flex;flex-direction:column;gap:4px}
+.rep-empty{color:var(--text-faint);font-size:13px;padding:40px;text-align:center}
+.rep-foot{color:var(--text-faint);font-size:11px;text-align:center;margin-top:4px}
+@media print{
+  .topbar,.sidebar,.explorer,.preview-foot,.tabs,.report-toolbar{display:none!important}
+  html,body{overflow:auto!important;height:auto!important;background:#fff!important;color:#111!important}
+  .app{display:block!important;height:auto!important}
+  .preview{background:#fff!important}
+  .compare-grid{display:none!important}
+  #reportPanel{display:block!important;overflow:visible!important}
+  .report-wrap *{background:#fff!important;color:#111!important;border-color:#bbb!important}
+  .rep-ch .pdelta.delta-up{color:#0a7d32!important}
+  .rep-ch .pdelta.delta-down{color:#b3261e!important}
+}
 @media(max-width:1100px){.sidebar{width:230px;min-width:230px}.explorer{width:340px;min-width:300px}}
 @media(max-width:800px){html,body{overflow:auto;height:auto}.app{flex-direction:column;height:auto}.sidebar,.explorer,.preview{width:100%;min-width:0}.preview{height:620px}}
 </style>
@@ -208,6 +267,7 @@ button,input,select{font:inherit}
 
     <div class="bottom-actions">
       <button class="btn primary" id="compareBtn"><span>⚡</span> Сравнить A → B</button>
+      <button class="btn" id="reportBtn"><span>📊</span> Авто-отчёт</button>
       <button class="btn" id="downloadJsonBtn"><span>⬇</span> Скачать JSON отчёт</button>
       <button class="btn ghost" id="tokenBtn"><span>🔑</span> GitHub токен (для лимитов)</button>
       <div class="small-note">Открыл файл напрямую? Всё работает без сервера — данные тянутся с <b>raw.githubusercontent</b> напрямую.</div>
@@ -246,12 +306,14 @@ button,input,select{font:inherit}
         <div class="filename" id="previewName">Выбери файл</div>
         <span class="badge added" id="previewBadge" style="display:none">—</span>
         <div style="margin-left:auto;display:flex;gap:6px;color:var(--text-faint)">
+          <span style="width:22px;height:22px;display:grid;place-items:center;border-radius:6px;cursor:pointer;border:1px solid transparent" title="Готовый отчёт об изменениях" id="gotoReport">📊</span>
           <span style="width:22px;height:22px;display:grid;place-items:center;border-radius:6px;cursor:pointer;border:1px solid transparent" title="Копировать путь" id="copyPath">⧉</span>
           <span style="width:22px;height:22px;display:grid;place-items:center;border-radius:6px;cursor:pointer;border:1px solid transparent" title="Открыть RAW" id="openRaw">↗</span>
         </div>
       </div>
       <div class="path2" id="previewPath">Слева выбери любой файл — справа увидишь что добавилось / изменилось / удалилось. Для картинок — предпросмотр, для .blk — diff.</div>
-      <div class="tabs" id="tabs"><div class="active" data-tab="preview">Превью</div><div data-tab="diff">Diff текст</div><div data-tab="raw">Raw ссылка</div></div>
+      <div id="autoSummary" style="display:none;margin-top:6px;font-size:11.5px;color:var(--text-dim);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 8px;line-height:1.45"></div>
+      <div class="tabs" id="tabs"><div class="active" data-tab="preview">Превью</div><div data-tab="diff">Diff текст</div><div data-tab="raw">Raw ссылка</div><div data-tab="report">📊 Отчёт</div></div>
     </div>
 
     <div class="compare-grid">
@@ -263,6 +325,16 @@ button,input,select{font:inherit}
         <div class="col-head"><b id="colCmpLabel">Версия B</b><div class="tools"><span id="dlCmp" title="Скачать файл B">↓</span></div></div>
         <div class="col-body" id="colCmp"><span class="empty">—</span></div>
       </div>
+    </div>
+
+    <div id="reportPanel">
+      <div class="report-toolbar"><b>📊 Готовый отчёт об изменениях</b><span class="rep-tools">
+        <button class="rbtn" id="repCopyBtn">⧉ Копировать текст</button>
+        <button class="rbtn" id="repMdBtn">⬇ Скачать .md</button>
+        <button class="rbtn" id="repHtmlBtn">⬇ Скачать .html</button>
+        <button class="rbtn" id="repPrintBtn">🖨 Печать</button>
+      </span></div>
+      <div class="report-wrap" id="reportWrap"></div>
     </div>
 
     <div class="preview-foot">
@@ -303,6 +375,7 @@ let files = []; // {filename, short_path, status, additions, deletions, patch, v
 let filtered = [];
 let selectedPath = null;
 let activeTab = 'preview';
+let reportData = null; // готовый авто-отчёт (заполняется после сравнения)
 let searchQuery = '', sortBy='name', ascending=true;
 let autoEnabled = true;
 let pollTimer = null;
@@ -493,9 +566,13 @@ async function loadCompare(){
     renderTree();
     selectedPath = files[0]?.filename || null;
     renderFileList();
-    renderPreview();
+    // 🤖 Авто-анализ: приложение само разбирает изменения и собирает готовый отчёт
+    analysisCache.clear();
+    reportData = analyzeAll();
+    renderReport();
+    switchTab('report');
     btn.textContent='⚡ Сравнить A → B'; btn.disabled=false;
-    showToast(`Готово: ${files.length} файлов • +${added} ~${modified} -${deleted}`);
+    showToast(`Готово: ${files.length} файлов • +${added} ~${modified} -${deleted} • 📊 отчёт готов`);
   }catch(e){
     console.error(e);
     btn.textContent='⚡ Сравнить A → B'; btn.disabled=false;
@@ -579,12 +656,13 @@ function renderFileList(){
     const delta=f.status==='added'?`<span style="color:var(--green)">+${f.additions||1}</span>`: f.status==='modified'?`<span style="color:var(--green)">+${f.additions}</span> <span style="color:var(--red)">-${f.deletions}</span>`: `<span style="color:var(--red)">-${f.deletions||1}</span>`;
     const vtag=f.vromfs?f.vromfs.replace('.vromfs.bin',''):'other';
     row.innerHTML=`<span class="icon">${icon}</span><span class="path" title="${f.filename}">${f.short_path}</span><span class="vtag">${vtag}</span><span class="delta">${delta}</span>`;
-    row.onclick=()=>{ selectedPath=f.filename; renderFileList(); renderPreview(); };
+    row.onclick=()=>{ selectedPath=f.filename; renderFileList(); if(activeTab==='report') switchTab('preview'); else renderPreview(); };
     listEl.appendChild(row);
   });
 }
 
 function renderPreview(){
+  if(activeTab==='report') return; // экран занят готовым отчётом
   const f = files.find(x=>x.filename===selectedPath) || files[0];
   const baseCol=document.getElementById('colBase'), cmpCol=document.getElementById('colCmp');
   if(!f){
@@ -610,6 +688,28 @@ function renderPreview(){
   document.getElementById('colBaseLabel').textContent=`A: ${baseVersion.id}`;
   document.getElementById('colCmpLabel').textContent=`B: ${cmpVersion.id}`;
   document.getElementById('sizeInfo').textContent = f.status==='added'?`0 → +${f.additions}`: f.status==='deleted'?`-${f.deletions} → 0`: `+${f.additions} / -${f.deletions}`;
+
+  // 🤖 Авто-сводка: одной строкой объясняем, что изменилось в этом файле
+  const autoEl=document.getElementById('autoSummary');
+  if(f.status==='modified'){
+    const an=analyzeFile(f);
+    if(an.changes.length){
+      const vtxt=an.verdict==='buff'?'⬆️ бафф':an.verdict==='nerf'?'⬇️ нерф':'🔧 изменение';
+      const top=an.changes.slice(0,2).map(d=>d.text).join('; ');
+      autoEl.style.display='block';
+      autoEl.innerHTML=`🤖 <b>Авто-анализ:</b> ${vtxt} • ${an.changes.length} изменений — ${escapeHtml(top)}${an.changes.length>2?' …':''}`;
+    } else if(an.note){
+      autoEl.style.display='block';
+      autoEl.innerHTML=`🤖 <b>Авто-анализ:</b> ${escapeHtml(an.note)}`;
+    } else autoEl.style.display='none';
+  } else if(f.status==='added'){
+    const info=addedFileInfo(f);
+    autoEl.style.display='block';
+    autoEl.innerHTML=`🤖 <b>Авто-анализ:</b> новый файл${info.length?' — '+escapeHtml(info.join(', ')):''}`;
+  } else if(f.status==='deleted'){
+    autoEl.style.display='block';
+    autoEl.innerHTML=`🤖 <b>Авто-анализ:</b> файл удалён в ${escapeHtml(cmpVersion.id)}`;
+  } else autoEl.style.display='none';
 
   const isImg = ['png','jpg','jpeg','dds','tga','svg','webp','avif'].includes((f.ext||'').toLowerCase());
   const rawA = `${RAW}/${encodeURIComponent(baseVersion.id).replace(/%2F/g,'/')}/${f.filename}`;
@@ -737,6 +837,547 @@ function buildVersionDropdown(anchor, onSelect, currentId){
   },30);
 }
 
+// ===== ANALYSIS START =====
+// 🤖 Авто-анализ изменений. Приложение САМО понимает, что изменилось в .blk файлах,
+// определяет баффы/нерфы и собирает готовый отчёт. Блок чистый (без DOM) —
+// между маркерами ANALYSIS START/END, чтобы можно было тестировать отдельно.
+const escHtml = s => String(s==null?'':s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+
+// Словарь параметров BLK: ключ → [русское название, что лучше ('up'/'down'/null)]
+const PARAMS = {
+  'dragCx':['лобовое сопротивление (Cx)','down'],
+  'dragCx0':['Cx при нулевой подъёмной силе','down'],
+  'dragCxS':['Cx доп. коэффициент','down'],
+  'dragCxFlaps':['Cx с выпущенными закрылками','down'],
+  'dragCxAirbrake':['Cx воздушных тормозов','down'],
+  'dragCxGears':['Cx с выпущенным шасси','down'],
+  'inducedDrag':['индуктивное сопротивление','down'],
+  'fuselageAoACd':['сопротивление фюзеляжа','down'],
+  'wingAoACd':['сопротивление крыла','down'],
+  'tailAoACd':['сопротивление оперения','down'],
+  'flapsAoACd':['сопротивление закрылков','down'],
+  'VyMax':['скороподъёмность','up'],
+  'climbRate':['скороподъёмность','up'],
+  'maxAltitude':['практический потолок','up'],
+  'turnTime':['время виража','down'],
+  'maxG':['макс. перегрузка','up'],
+  'criticalAoA':['критический угол атаки','up'],
+  'maxAoA':['макс. угол атаки','up'],
+  'maxSpeed':['макс. скорость','up'],
+  'wingArea':['площадь крыла',null],
+  'wingSpan':['размах крыла',null],
+  'maxPower':['мощность двигателя','up'],
+  'afterburnerPower':['мощность форсажа','up'],
+  'engine.maxPower':['мощность двигателя','up'],
+  'engine.afterburnerPower':['мощность форсажа','up'],
+  'fuelMass':['запас топлива','up'],
+  'fuelConsumption':['расход топлива','down'],
+  'brakeForce':['тормозное усилие','up'],
+  'mass':['масса',null],
+  'mass.m':['масса',null],
+  'reverseSpeed':['скорость заднего хода','up'],
+  'horsePower':['мощность двигателя','up'],
+  'power':['мощность','up'],
+  'crew':['размер экипажа',null],
+  'crewCount':['размер экипажа',null],
+  'cost':['стоимость',null],
+  'repairCost':['стоимость ремонта','down'],
+  'rotationSpeed':['скорость поворота башни','up'],
+  'maxVertSpeed':['скорость вертикального наведения','up'],
+  'maxHorSpeed':['скорость горизонтального наведения','up'],
+  'zoom':['кратность прицела','up'],
+  'thickness':['толщина брони','up'],
+  'maxArmorThickness':['макс. толщина брони','up'],
+  'armor.thickness':['толщина брони','up'],
+  'bullet.mass':['масса снаряда','up'],
+  'bullet.speed':['начальная скорость снаряда','up'],
+  'speed':['скорость','up'],
+  'startSpeed':['начальная скорость','up'],
+  'explosiveMass':['масса ВВ','up'],
+  'maxDist':['дальность стрельбы','up'],
+  'reloadTime':['время перезарядки','down'],
+  'shotFreq':['скорострельность','up'],
+  'rateOfFire':['скорострельность','up'],
+  'spread':['разброс','down'],
+  'recoil':['отдача','down'],
+  'ammo':['боекомплект','up'],
+  'ammoCount':['боекомплект','up'],
+  'penetration':['пробитие','up'],
+};
+
+// Категории файлов по пути
+const CATS = [
+  {id:'fm',      rx:/gamedata\/flightmodels\//,              title:'✈️ Лётные модели (FM)', icon:'✈️'},
+  {id:'air',     rx:/gamedata\/units\/(air|aircraft)/,       title:'🛩️ Авиация (юниты)', icon:'🛩️'},
+  {id:'tank',    rx:/gamedata\/units\/(tank|ground|arty|aa)/, title:'🪖 Наземная техника', icon:'🪖'},
+  {id:'ship',    rx:/gamedata\/units\/(ship|naval|boat)/,    title:'⚓ Флот', icon:'⚓'},
+  {id:'units',   rx:/gamedata\/units\//,                     title:'🧩 Юниты (прочее)', icon:'🧩'},
+  {id:'weapons', rx:/gamedata\/weapons\//,                   title:'💥 Вооружение', icon:'💥'},
+  {id:'tex',     rx:/tex\.vromfs\.bin_u\//,                  title:'🎨 Текстуры и скины', icon:'🎨'},
+  {id:'gui',     rx:/gui\.vromfs\.bin_u\//,                  title:'🖥️ Интерфейс (GUI)', icon:'🖥️'},
+  {id:'mis',     rx:/(\/mis\/|missions)/,                    title:'🗺️ Миссии', icon:'🗺️'},
+  {id:'lang',    rx:/(lang|localization)/,                   title:'🌐 Локализация', icon:'🌐'},
+];
+const IMG_EXTS = ['png','jpg','jpeg','dds','tga','webp','avif','svg'];
+
+function categorizeFile(f){
+  const p = f.filename||'';
+  for(const c of CATS) if(c.rx.test(p)) return c;
+  if(IMG_EXTS.includes(f.ext||'')) return {id:'img', title:'🖼️ Изображения', icon:'🖼️'};
+  return {id:'other', title:'📦 Прочее', icon:'📦'};
+}
+
+// Красивое имя юнита из имени файла: mig_35.blk → MiG-35, f_4e_phantom → F-4E Phantom
+const NAME_FIX = {mig:'MiG',su:'Su',yak:'Yak',la:'La',il:'Il',tu:'Tu',pe:'Pe',f:'F',a:'A',p:'P',t:'T',bf:'Bf',fw:'Fw',me:'Me',he:'He',ki:'Ki',h:'H',b:'B',i:'I',pz:'Pz',kv:'КВ',is:'ИС',bmp:'БМП',bmd:'БМД',t34:'T-34',t54:'T-54',t55:'T-55',t62:'T-62',t64:'T-64',t72:'T-72',t80:'T-80',t90:'T-90',leo:'Leo',type:'Type',amx:'AMX',cv:'CV',oto:'OTO',ztz:'ZTZ',pl:'PL'};
+function prettifyName(base){
+  let t = String(base||'').replace(/\.(blk[cs]?|dds|png|jpe?g|webp|tga|svg)$/i,'').replace(/_/g,' ').trim();
+  if(!t) return String(base||'?');
+  const toks = t.split(/\s+/).map(tok=>{
+    const low = tok.toLowerCase();
+    return NAME_FIX[low] || (tok.charAt(0).toUpperCase()+tok.slice(1));
+  });
+  const out=[];
+  for(let i=0;i<toks.length;i++){
+    const prev = out[out.length-1];
+    if(prev && !prev.includes('-') && /^[A-Za-z][A-Za-z0-9.]{0,9}$/.test(prev) && /^\d{1,3}[A-Za-z]{0,2}$/.test(toks[i])){
+      out[out.length-1] = prev+'-'+toks[i].toUpperCase();
+    } else out.push(toks[i]);
+  }
+  return out.join(' ');
+}
+
+// Разбор одной строки BLK
+function parseBlkLine(line){
+  const s = String(line||'').trim();
+  if(!s || s.startsWith('//')) return null;
+  let m = s.match(/^([A-Za-z0-9_\-\.]+)\s*:\s*(.*?);?\s*$/);
+  if(m) return {kind:'param', key:m[1], value:m[2].trim()};
+  m = s.match(/^([A-Za-z0-9_\-\.]+)\s*\{/);
+  if(m) return {kind:'block', key:m[1]};
+  m = s.match(/^([A-Za-z0-9_\-\.]+)$/);
+  if(m) return {kind:'bare', key:m[1]};
+  return {kind:'raw', raw:s};
+}
+function nums(v){
+  if(v==null) return null;
+  const m = String(v).match(/-?\d+(\.\d+)?([eE][+-]?\d+)?/g);
+  return m ? m.map(Number) : null;
+}
+function fmtNum(n){
+  if(!isFinite(n)) return String(n);
+  return String(parseFloat(n.toFixed(6)));
+}
+function paramInfo(key, ctx){
+  const last = ctx && ctx.length ? ctx[ctx.length-1] : null;
+  if(last){
+    const d = PARAMS[last+'.'+key];
+    if(d) return {name:d[0], better:d[1]};
+  }
+  const p = PARAMS[key];
+  if(p) return {name:p[0], better:p[1]};
+  return {name:key, better:null};
+}
+
+// Разбор unified diff (patch от GitHub) в список изменений BLK
+function parsePatch(patch){
+  const out = [];
+  const lines = String(patch||'').split('\n');
+  const ctx = [];
+  let pendingDel = [];
+  let inHunk = false;
+  const updCtx = (line)=>{
+    const s = String(line||'').trim();
+    if(!s) return;
+    const opens = (s.match(/\{/g)||[]).length;
+    const closes = (s.match(/\}/g)||[]).length;
+    if(opens>closes){
+      const m = s.match(/^([A-Za-z0-9_\-\.]+)/);
+      if(m) ctx.push(m[1]);
+    } else if(closes>opens){
+      let n = closes-opens;
+      while(n-->0 && ctx.length) ctx.pop();
+    }
+  };
+  const flushDel = ()=>{ while(pendingDel.length) out.push(...makeChange(pendingDel.shift(), null, ctx)); };
+  const emit = (delLine, addLine)=>{ out.push(...makeChange(delLine, addLine, ctx)); };
+  for(let i=0;i<lines.length;i++){
+    const l = lines[i];
+    if(l.startsWith('@@')){ flushDel(); inHunk = true; continue; }
+    if(l.startsWith('diff ')||l.startsWith('index ')){ flushDel(); inHunk = false; continue; }
+    if(l.startsWith('---')||l.startsWith('+++')) continue;
+    if(!inHunk) continue;
+    if(l.startsWith('-')){ pendingDel.push(l.slice(1)); continue; }
+    if(l.startsWith('+')){
+      const addL = l.slice(1);
+      const addP = parseBlkLine(addL);
+      let pairIdx = 0;
+      // умное спаривание: ищем среди удалённых строк ту же параметр (ключ), чтобы iconType: a → iconType: b считалось изменением
+      if(pendingDel.length && addP && addP.kind==='param'){
+        const idx = pendingDel.findIndex(dl=>{
+          const dp = parseBlkLine(dl);
+          return dp && dp.kind==='param' && dp.key===addP.key;
+        });
+        if(idx>=0) pairIdx = idx;
+      }
+      if(pendingDel.length) emit(pendingDel.splice(pairIdx,1)[0], addL);
+      else emit(null, addL);
+      updCtx(addL);
+      continue;
+    }
+    flushDel();
+    updCtx(l.startsWith(' ') ? l.slice(1) : l);
+  }
+  flushDel();
+  return out;
+}
+function changeFromParsed(dir, p, ctx){
+  const base = {ctx: ctx.slice()};
+  if(p.kind==='param') return Object.assign(base,{kind:dir==='del'?'delParam':'addParam', key:p.key, val:p.value});
+  if(p.kind==='block') return Object.assign(base,{kind:dir==='del'?'delBlock':'addBlock', key:p.key});
+  return Object.assign(base,{kind:dir==='del'?'delRaw':'addRaw', raw:(p.raw!=null?p.raw:(p.key||''))});
+}
+function makeChange(delLine, addLine, ctx){
+  const d = delLine!=null ? parseBlkLine(delLine) : null;
+  const a = addLine!=null ? parseBlkLine(addLine) : null;
+  if(d && a){
+    if(d.kind==='param' && a.kind==='param' && d.key===a.key){
+      return [{ctx:ctx.slice(), kind:'value', key:d.key, oldV:d.value, newV:a.value}];
+    }
+    if(d.kind==='block' && a.kind==='block' && d.key===a.key){
+      return [{ctx:ctx.slice(), kind:'value', key:d.key, oldV:'', newV:''}];
+    }
+    const out=[];
+    if(d) out.push(changeFromParsed('del', d, ctx));
+    if(a) out.push(changeFromParsed('add', a, ctx));
+    return out;
+  }
+  if(d) return [changeFromParsed('del', d, ctx)];
+  if(a) return [changeFromParsed('add', a, ctx)];
+  return [];
+}
+
+// Превращает изменение в человекочитаемое описание (+html, +текст, +оценка бафф/нерф)
+function describeChange(ch){
+  if(ch.kind==='value'){
+    if(ch.oldV==='' && ch.newV==='') return null;
+    const info = paramInfo(ch.key, ch.ctx);
+    const dn = nums(ch.oldV), nn = nums(ch.newV);
+    if(dn && nn && dn.length===nn.length){
+      if(dn.every((v,i)=>v===nn[i])) return null; // значения равны — неинтересно
+      const delta = nn.map((v,i)=>v-dn[i]);
+      const deltaStr = delta.length===1
+        ? (delta[0]>0?'+':'')+fmtNum(delta[0])
+        : delta.map(d=>(d>0?'+':'')+fmtNum(d)).join(' / ');
+      let pct=null, pctStr='';
+      if(dn[0]!==0 && isFinite(dn[0])){
+        pct=Math.abs((nn[0]-dn[0])/dn[0])*100;
+        pctStr=` (${nn[0]>dn[0]?'+':'-'}${pct.toFixed(1)}%)`;
+      }
+      let score=0, tag='';
+      if(info.better){
+        const good = info.better==='up' ? nn[0]>dn[0] : nn[0]<dn[0];
+        score = good?1:-1;
+        tag = good?'бафф':'нерф';
+      }
+      const dirCls = nn[0]>dn[0] ? 'delta-up' : 'delta-down';
+      const deltaFull = pct!=null ? `(${deltaStr}, ${nn[0]>dn[0]?'+':'-'}${pct.toFixed(1)}%)` : `(${deltaStr})`;
+      const text = `${info.name}: ${ch.oldV} → ${ch.newV} ${deltaFull}${tag?' • '+tag:''}`;
+      const html = `<div class="rep-ch"><span class="pname">${escHtml(info.name)}</span> <span class="pv">${escHtml(ch.oldV)}</span> <span class="arrow">→</span> <span class="pv">${escHtml(ch.newV)}</span> <span class="pdelta ${dirCls}">${escHtml(deltaFull)}</span>${tag?` <span class="vbadge ${score>0?'buff':'nerf'}">${tag}</span>`:''}</div>`;
+      return {kind:'value', name:info.name, key:ch.key, better:info.better, oldV:ch.oldV, newV:ch.newV, deltaStr, pct, pctStr, score, tag, text, html};
+    }
+    const text = `${info.name}: ${ch.oldV} → ${ch.newV}`;
+    const html = `<div class="rep-ch"><span class="pname">${escHtml(info.name)}</span> <span class="pv">${escHtml(ch.oldV)}</span> <span class="arrow">→</span> <span class="pv">${escHtml(ch.newV)}</span></div>`;
+    return {kind:'value', name:info.name, key:ch.key, better:null, oldV:ch.oldV, newV:ch.newV, deltaStr:'', pct:null, pctStr:'', score:0, tag:'', text, html};
+  }
+  if(ch.kind==='addParam' || ch.kind==='addBlock'){
+    const info = paramInfo(ch.key, ch.ctx);
+    const isBlock = ch.kind==='addBlock';
+    const text = isBlock ? `добавлен блок «${info.name}»` : `добавлен параметр ${info.name}${ch.val!=null?' = '+ch.val:''}`;
+    const html = `<div class="rep-ch add">➕ ${escHtml(text)}</div>`;
+    return {kind:'add', name:info.name, key:ch.key, score:0, tag:'', text, html};
+  }
+  if(ch.kind==='delParam' || ch.kind==='delBlock'){
+    const info = paramInfo(ch.key, ch.ctx);
+    const isBlock = ch.kind==='delBlock';
+    const text = isBlock ? `удалён блок «${info.name}»` : `удалён параметр ${info.name}${ch.val!=null?' (было '+ch.val+')':''}`;
+    const html = `<div class="rep-ch del">➖ ${escHtml(text)}</div>`;
+    return {kind:'del', name:info.name, key:ch.key, score:0, tag:'', text, html};
+  }
+  const text = (ch.kind==='delRaw'?'удалена строка: ':'добавлена строка: ')+(ch.raw||'');
+  const html = `<div class="rep-ch ${ch.kind==='delRaw'?'del':'add'}">${escHtml(text)}</div>`;
+  return {kind:'raw', name:'', score:0, tag:'', text, html};
+}
+
+// Анализ одного файла (с кэшем)
+const analysisCache = new Map();
+function analyzeFile(f){
+  if(analysisCache.has(f.filename)) return analysisCache.get(f.filename);
+  const res = {changes:[], score:0, verdict:'change', rawCount:0, note:null};
+  if(f.patch){
+    const changes = parsePatch(String(f.patch).slice(0, 300000));
+    const descs=[]; let score=0;
+    changes.forEach(ch=>{ const d=describeChange(ch); if(!d) return; descs.push(d); score+=d.score; });
+    res.changes=descs; res.score=score; res.rawCount=changes.length;
+    res.verdict = score>0?'buff':score<0?'nerf':'change';
+    if(!descs.length && changes.length) res.note='изменения не распознаны (не BLK-формат или бинарный diff)';
+  } else {
+    res.note = 'diff недоступен (бинарный файл или лимит GitHub)';
+  }
+  analysisCache.set(f.filename, res);
+  return res;
+}
+
+// Ключевые параметры нового (добавленного) файла — вытащим из patch
+function addedFileInfo(f){
+  if(!f.patch) return [];
+  const want = ['mass','maxSpeed','maxAltitude','VyMax','turnTime','maxPower','afterburnerPower','crew','thickness','speed','reloadTime','ammo','maxDist'];
+  const found=[]; const seen=new Set();
+  for(const l of String(f.patch).split('\n')){
+    if(found.length>=4) break;
+    if(!l.startsWith('+') || l.startsWith('+++')) continue;
+    const p = parseBlkLine(l.slice(1));
+    if(p && p.kind==='param' && want.includes(p.key) && !seen.has(p.key)){
+      seen.add(p.key);
+      found.push(`${paramInfo(p.key,[]).name}: ${p.value}`);
+    }
+  }
+  return found;
+}
+
+// Главный анализ: из списка files собирает готовый отчёт
+function analyzeAll(){
+  const rep = {
+    base: (typeof baseVersion!=='undefined' && baseVersion) ? baseVersion.id : '?',
+    cmp: (typeof cmpVersion!=='undefined' && cmpVersion) ? cmpVersion.id : '?',
+    generated: new Date().toISOString(),
+    stats: {added:0, modified:0, deleted:0, total:0},
+    categories: {},
+    addedFiles: [], deletedFiles: [],
+    highlights: [],
+    binary: {}, // catId → сколько изменено двоичных файлов (без diff)
+  };
+  const list = (typeof files!=='undefined' && Array.isArray(files)) ? files : [];
+  const added = list.filter(f=>f.status==='added');
+  const modified = list.filter(f=>f.status==='modified');
+  const deleted = list.filter(f=>f.status==='deleted');
+  rep.stats = {added:added.length, modified:modified.length, deleted:deleted.length, total:list.length};
+  const UNIT_CATS = new Set(['fm','air','tank','ship','units']);
+
+  added.forEach(f=>{
+    const cat = categorizeFile(f);
+    rep.addedFiles.push({file:f, cat});
+    if(UNIT_CATS.has(cat.id) && /\.blk[cs]?$/i.test(f.filename)){
+      const nm = prettifyName(f.short_path.split('/').pop());
+      const info = addedFileInfo(f);
+      rep.highlights.push({ico:'🆕', text:`Новый юнит/FM: ${nm}${info.length?' — '+info.join(', '):''}`, file:f.filename});
+    } else if(cat.id==='tex' || cat.id==='img'){
+      rep.highlights.push({ico:'🎨', text:`Новая текстура/скин: ${f.short_path.split('/').pop()}`, file:f.filename});
+    }
+  });
+  deleted.forEach(f=>{
+    const cat = categorizeFile(f);
+    rep.deletedFiles.push({file:f, cat});
+    if(UNIT_CATS.has(cat.id) && /\.blk[cs]?$/i.test(f.filename)){
+      rep.highlights.push({ico:'🗑️', text:`Удалён юнит/FM: ${prettifyName(f.short_path.split('/').pop())}`, file:f.filename});
+    }
+  });
+
+  modified.forEach(f=>{
+    const cat = categorizeFile(f);
+    if(!f.patch && (cat.id==='tex'||cat.id==='img'||cat.id==='other')){
+      // двоичные изменения (текстуры) — считаем, но не разбираем построчно
+      rep.binary[cat.id] = (rep.binary[cat.id]||0)+1;
+      return;
+    }
+    const an = analyzeFile(f);
+    const fr = {file:f, cat, changes:an.changes, score:an.score, verdict:an.verdict, note:an.note};
+    if(!rep.categories[cat.id]) rep.categories[cat.id]={cat, files:[]};
+    rep.categories[cat.id].files.push(fr);
+    // Крупные баффы/нерфы выносим в «Главное»
+    if(an.verdict!=='change' && UNIT_CATS.has(cat.id)){
+      let top=null;
+      an.changes.forEach(d=>{ if(d.pct!=null && (!top || d.pct>top.pct)) top=d; });
+      if(top && top.pct>=5){
+        rep.highlights.push({ico: an.verdict==='buff'?'📈':'📉', text:`${prettifyName(f.short_path.split('/').pop())}: ${top.name}${top.pctStr} (${top.oldV} → ${top.newV})`, file:f.filename});
+      }
+    }
+  });
+
+  // категории, где только двоичные изменённые файлы
+  Object.keys(rep.binary).forEach(cid=>{
+    if(!rep.categories[cid]){
+      const cat = CATS.find(c=>c.id===cid) || {id:cid, title:'📦 Прочее', icon:'📦'};
+      rep.categories[cid]={cat, files:[]};
+    }
+  });
+  // сортировка: файлы внутри категории — по значимости изменения
+  Object.values(rep.categories).forEach(crep=>{
+    crep.files.sort((a,b)=> (Math.abs(b.score)-Math.abs(a.score)) || a.file.filename.localeCompare(b.file.filename));
+  });
+  return rep;
+}
+
+// HTML-фрагмент готового отчёта (общий для вкладки и standalone-экспорта)
+function buildReportHtml(rep){
+  let h='';
+  h+=`<div class="rep-head">
+    <div class="rep-title">📋 Отчёт об изменениях</div>
+    <div class="rep-vers"><b>${escHtml(rep.base)}</b> → <b>${escHtml(rep.cmp)}</b> • сгенерировано ${escHtml(new Date(rep.generated).toLocaleString('ru-RU'))} • авто-анализ 🤖</div>
+    <div class="rep-stats">
+      <span class="rep-chip added">🆕 Добавлено <b>${rep.stats.added}</b></span>
+      <span class="rep-chip modified">🔧 Изменено <b>${rep.stats.modified}</b></span>
+      <span class="rep-chip deleted">🗑️ Удалено <b>${rep.stats.deleted}</b></span>
+      <span class="rep-chip">Всего <b>${rep.stats.total}</b></span>
+    </div>
+  </div>`;
+  if(rep.highlights.length){
+    h+=`<div class="rep-section"><div class="rep-sec-title">⭐ Главное <span class="cnt">авто-анализ • ${rep.highlights.length}</span></div>`;
+    rep.highlights.slice(0,30).forEach(hl=>{ h+=`<div class="rep-high"><span class="ico">${hl.ico}</span><span>${escHtml(hl.text)}</span></div>`; });
+    h+=`</div>`;
+  }
+  const cats = Object.values(rep.categories).sort((a,b)=>b.files.length-a.files.length);
+  cats.forEach(crep=>{
+    h+=`<div class="rep-section"><div class="rep-sec-title">${crep.cat.icon} ${escHtml(crep.cat.title)} <span class="cnt">${crep.files.length} файл(ов)</span></div>`;
+    if(rep.binary && rep.binary[crep.cat.id]){
+      h+=`<div class="rep-file"><span class="cat-ico">🖼️</span><span class="fname">Обновлено двоичных файлов: ${rep.binary[crep.cat.id]}</span><span class="fdelta">текстовый diff недоступен</span></div>`;
+    }
+    crep.files.slice(0,100).forEach(fr=>{
+      const vBadge = fr.verdict==='buff'?'<span class="vbadge buff">⬆️ бафф</span>':fr.verdict==='nerf'?'<span class="vbadge nerf">⬇️ нерф</span>':'<span class="vbadge change">🔧 изменение</span>';
+      const fname = escHtml(prettifyName(fr.file.short_path.split('/').pop()));
+      h+=`<div class="rep-file"><span class="fname">${fname}</span>${vBadge}<span class="fdelta">+${fr.file.additions||0} −${fr.file.deletions||0}</span></div>`;
+      h+=`<div class="rep-filepath">${escHtml(fr.file.short_path)}</div>`;
+      if(fr.note){
+        h+=`<div class="rep-changes"><div class="rep-ch">${escHtml(fr.note)}</div></div>`;
+      } else if(fr.changes.length){
+        h+=`<div class="rep-changes">`;
+        fr.changes.slice(0,30).forEach(d=>{ h+=d.html; });
+        if(fr.changes.length>30) h+=`<div class="rep-more">… ещё ${fr.changes.length-30} изменений</div>`;
+        h+=`</div>`;
+      }
+    });
+    if(crep.files.length>100) h+=`<div class="rep-more">… показано 100 из ${crep.files.length} файлов</div>`;
+    h+=`</div>`;
+  });
+  if(!cats.length){
+    h+=`<div class="rep-section"><div class="rep-empty">Нет текстовых изменений — только двоичные файлы или пустой diff.</div></div>`;
+  }
+  if(rep.addedFiles.length){
+    h+=`<div class="rep-section"><div class="rep-sec-title">🆕 Добавленные файлы <span class="cnt">${rep.addedFiles.length}</span></div><div class="rep-list">`;
+    rep.addedFiles.slice(0,150).forEach(({file:f,cat})=>{
+      h+=`<div class="rep-file"><span class="cat-ico">${cat.icon}</span><span class="fname">${escHtml(f.short_path)}</span><span class="fdelta">+${f.additions||'?'} строк</span></div>`;
+    });
+    if(rep.addedFiles.length>150) h+=`<div class="rep-more">… ещё ${rep.addedFiles.length-150} файлов</div>`;
+    h+=`</div></div>`;
+  }
+  if(rep.deletedFiles.length){
+    h+=`<div class="rep-section"><div class="rep-sec-title">🗑️ Удалённые файлы <span class="cnt">${rep.deletedFiles.length}</span></div><div class="rep-list">`;
+    rep.deletedFiles.slice(0,150).forEach(({file:f,cat})=>{
+      h+=`<div class="rep-file"><span class="cat-ico">${cat.icon}</span><span class="fname">${escHtml(f.short_path)}</span></div>`;
+    });
+    if(rep.deletedFiles.length>150) h+=`<div class="rep-more">… ещё ${rep.deletedFiles.length-150} файлов</div>`;
+    h+=`</div></div>`;
+  }
+  h+=`<div class="rep-foot">Отчёт сгенерирован автоматически • ${escHtml(rep.base)} → ${escHtml(rep.cmp)} • War Thunder Datamine App 🤖</div>`;
+  return h;
+}
+
+// Текстовый (Markdown) отчёт — для копирования и скачивания
+function buildMarkdown(rep){
+  const L=[];
+  L.push(`# 📋 Отчёт об изменениях — War Thunder Datamine`);
+  L.push(``);
+  L.push(`**Версии:** ${rep.base} → ${rep.cmp}  `);
+  L.push(`**Сгенерировано:** ${new Date(rep.generated).toLocaleString('ru-RU')} (авто-анализ 🤖)`);
+  L.push(``);
+  L.push(`## 📊 Итого`);
+  L.push(``);
+  L.push(`| Показатель | Значение |`);
+  L.push(`|---|---|`);
+  L.push(`| 🆕 Добавлено файлов | **${rep.stats.added}** |`);
+  L.push(`| 🔧 Изменено файлов | **${rep.stats.modified}** |`);
+  L.push(`| 🗑️ Удалено файлов | **${rep.stats.deleted}** |`);
+  L.push(`| **Всего** | **${rep.stats.total}** |`);
+  if(rep.highlights.length){
+    L.push(``);
+    L.push(`## ⭐ Главное (авто-анализ)`);
+    L.push(``);
+    rep.highlights.slice(0,30).forEach(h=>L.push(`- ${h.ico} ${h.text}`));
+  }
+  const cats = Object.values(rep.categories).sort((a,b)=>b.files.length-a.files.length);
+  cats.forEach(crep=>{
+    L.push(``);
+    L.push(`## ${crep.cat.title} — ${crep.files.length} файл(ов)`);
+    if(rep.binary && rep.binary[crep.cat.id]){
+      L.push(``);
+      L.push(`_Обновлено двоичных файлов (без текстового diff): ${rep.binary[crep.cat.id]}_`);
+    }
+    crep.files.slice(0,100).forEach(fr=>{
+      L.push(``);
+      const vEmoji = fr.verdict==='buff'?'⬆️ бафф':fr.verdict==='nerf'?'⬇️ нерф':'🔧 изменение';
+      L.push(`### ${vEmoji} — ${prettifyName(fr.file.short_path.split('/').pop())} — \`${fr.file.short_path}\``);
+      if(fr.note){ L.push(`> ${fr.note}`); return; }
+      fr.changes.slice(0,40).forEach(d=>L.push(`- ${d.text}`));
+      if(fr.changes.length>40) L.push(`- … ещё ${fr.changes.length-40} изменений`);
+    });
+  });
+  if(rep.addedFiles.length){
+    L.push(``);
+    L.push(`## 🆕 Добавленные файлы (${rep.addedFiles.length})`);
+    L.push(``);
+    rep.addedFiles.slice(0,200).forEach(({file:f})=>L.push(`- \`${f.short_path}\``));
+    if(rep.addedFiles.length>200) L.push(`- … ещё ${rep.addedFiles.length-200}`);
+  }
+  if(rep.deletedFiles.length){
+    L.push(``);
+    L.push(`## 🗑️ Удалённые файлы (${rep.deletedFiles.length})`);
+    L.push(``);
+    rep.deletedFiles.slice(0,200).forEach(({file:f})=>L.push(`- \`${f.short_path}\``));
+    if(rep.deletedFiles.length>200) L.push(`- … ещё ${rep.deletedFiles.length-200}`);
+  }
+  L.push(``);
+  L.push(`---`);
+  L.push(`*Отчёт сгенерирован автоматически — War Thunder Datamine App 🤖*`);
+  return L.join('\n');
+}
+
+// Standalone HTML-отчёт (скачать и открыть где угодно)
+const REPORT_CSS = `body{background:#0f0f0f;color:#e6e6e6;font-family:Inter,Segoe UI,Arial,sans-serif;font-size:13px;margin:0;padding:24px}
+.report-wrap{max-width:960px;margin:0 auto}
+.rep-head{background:#1c1c1c;border:1px solid #2b2b2b;border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.rep-title{font-size:17px;font-weight:800}
+.rep-vers{color:#9a9a9a;font-size:12.5px;margin-top:4px}.rep-vers b{color:#e6e6e6}
+.rep-stats{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.rep-chip{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:99px;border:1px solid #2b2b2b;background:#232323;color:#9a9a9a}
+.rep-chip b{font-size:13px;color:#e6e6e6}
+.rep-chip.added{color:#7fc97f;border-color:rgba(127,201,127,.3);background:rgba(127,201,127,.12)}
+.rep-chip.modified{color:#d6b55a;border-color:rgba(214,181,90,.3);background:rgba(214,181,90,.12)}
+.rep-chip.deleted{color:#e07a7a;border-color:rgba(224,122,122,.3);background:rgba(224,122,122,.12)}
+.rep-section{background:#1c1c1c;border:1px solid #2b2b2b;border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.rep-sec-title{font-size:13px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.rep-sec-title .cnt{margin-left:auto;font-size:11px;color:#6b6b6b;font-weight:600}
+.rep-high{display:flex;gap:9px;align-items:flex-start;padding:7px 10px;border-radius:7px;background:#0f0f0f;border:1px solid #2b2b2b;margin-bottom:6px;font-size:12.5px;line-height:1.4}
+.rep-file{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;background:#0f0f0f;border:1px solid #2b2b2b;margin-bottom:4px;flex-wrap:wrap}
+.rep-file .fname{font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:700}
+.rep-file .fdelta{font-size:11px;color:#6b6b6b;font-family:ui-monospace,monospace}
+.rep-filepath{font-size:10.5px;color:#6b6b6b;font-family:ui-monospace,monospace;padding:0 10px;margin:-2px 0 6px;word-break:break-all}
+.vbadge{font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.vbadge.buff{background:rgba(127,201,127,.12);color:#7fc97f;border:1px solid rgba(127,201,127,.3)}
+.vbadge.nerf{background:rgba(224,122,122,.12);color:#e07a7a;border:1px solid rgba(224,122,122,.3)}
+.vbadge.change{background:rgba(214,181,90,.12);color:#d6b55a;border:1px solid rgba(214,181,90,.3)}
+.rep-changes{margin:0 0 10px 4px;padding-left:12px;border-left:2px solid #2b2b2b;display:flex;flex-direction:column;gap:3px}
+.rep-ch{font-size:12px;color:#9a9a9a;font-family:ui-monospace,Menlo,monospace;line-height:1.45;word-break:break-word}
+.rep-ch .pname{color:#e6e6e6;font-weight:600}.rep-ch .pv{color:#9a9a9a}.rep-ch .arrow{color:#6b6b6b}
+.rep-ch .pdelta{font-weight:700}.rep-ch .pdelta.delta-up{color:#7fc97f}.rep-ch .pdelta.delta-down{color:#e07a7a}
+.rep-ch.add{color:#7fc97f}.rep-ch.del{color:#e07a7a}
+.rep-more{font-size:11px;color:#6b6b6b;font-style:italic;margin-top:2px}
+.rep-list{display:flex;flex-direction:column;gap:4px}
+.rep-empty{color:#6b6b6b;font-size:13px;padding:40px;text-align:center}
+.rep-foot{color:#6b6b6b;font-size:11px;text-align:center;margin-top:4px}`;
+function buildStandaloneHtml(rep){
+  return `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Отчёт ${escHtml(rep.base)} → ${escHtml(rep.cmp)}</title><style>${REPORT_CSS}</style></head><body><div class="report-wrap">${buildReportHtml(rep)}</div></body></html>`;
+}
+// ===== ANALYSIS END =====
+
 // Wiring - FIXED: теперь можно выбирать любые версии, + ручной ввод
 document.getElementById('baseSelect').onclick=(e)=>{
   e.preventDefault(); e.stopPropagation();
@@ -835,13 +1476,23 @@ document.getElementById('resetFilters').onclick=()=>{
   showToast('Фильтры сброшены — показано всё');
 };
 document.getElementById('tabs').onclick=e=>{
-  if(e.target.dataset.tab){
-    document.querySelectorAll('#tabs div').forEach(d=>d.classList.remove('active'));
-    e.target.classList.add('active');
-    activeTab=e.target.dataset.tab;
+  if(e.target.dataset.tab) switchTab(e.target.dataset.tab);
+};
+function switchTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('#tabs div').forEach(d=>d.classList.toggle('active', d.dataset.tab===tab));
+  const grid=document.querySelector('.compare-grid');
+  const panel=document.getElementById('reportPanel');
+  if(tab==='report'){
+    if(grid) grid.style.display='none';
+    panel.classList.add('open');
+    renderReport();
+  } else {
+    if(grid) grid.style.display='flex';
+    panel.classList.remove('open');
     renderPreview();
   }
-};
+}
 document.getElementById('autoCheck').onchange=e=>{
   autoEnabled=e.target.checked;
   document.getElementById('autoState').textContent=autoEnabled?'ВКЛ':'ВЫКЛ';
@@ -869,6 +1520,46 @@ document.getElementById('openRaw').onclick=()=>{
 };
 document.getElementById('downloadJsonBtn').onclick=downloadJson;
 document.getElementById('downloadBtn').onclick=downloadJson;
+
+// ===== Готовый отчёт: рендер и экспорт =====
+function renderReport(){
+  const wrap=document.getElementById('reportWrap');
+  if(!wrap) return;
+  if(!reportData){
+    wrap.innerHTML=`<div class="rep-empty">Сначала сравни две версии — отчёт сформируется автоматически 🤖</div>`;
+    return;
+  }
+  wrap.innerHTML=buildReportHtml(reportData);
+}
+function gotoReport(){
+  if(!reportData){ showToast('Сначала сравни версии — отчёт появится автоматически'); return; }
+  switchTab('report');
+}
+document.getElementById('reportBtn').onclick=gotoReport;
+document.getElementById('gotoReport').onclick=gotoReport;
+document.getElementById('repCopyBtn').onclick=()=>{
+  if(!reportData){ showToast('Нет отчёта — сначала сравни версии'); return; }
+  navigator.clipboard.writeText(buildMarkdown(reportData)).then(()=>showToast('Отчёт скопирован в буфер (текст/Markdown)'));
+};
+document.getElementById('repMdBtn').onclick=()=>{
+  if(!reportData){ showToast('Нет отчёта — сначала сравни версии'); return; }
+  const blob=new Blob([buildMarkdown(reportData)],{type:'text/markdown;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`wt_report_${reportData.base}_vs_${reportData.cmp}.md`; a.click();
+  showToast('Markdown-отчёт скачан');
+};
+document.getElementById('repHtmlBtn').onclick=()=>{
+  if(!reportData){ showToast('Нет отчёта — сначала сравни версии'); return; }
+  const blob=new Blob([buildStandaloneHtml(reportData)],{type:'text/html;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`wt_report_${reportData.base}_vs_${reportData.cmp}.html`; a.click();
+  showToast('HTML-отчёт скачан (standalone)');
+};
+document.getElementById('repPrintBtn').onclick=()=>{
+  if(!reportData){ showToast('Нет отчёта — сначала сравни версии'); return; }
+  if(activeTab!=='report') switchTab('report');
+  setTimeout(()=>window.print(), 150);
+};
 function downloadJson(){
   if(!files.length){ showToast('Сначала сравни версии'); return; }
   const data={ base:baseVersion.id, compare:cmpVersion.id, generated:new Date().toISOString(), stats:{added:files.filter(f=>f.status==='added').length, modified:files.filter(f=>f.status==='modified').length, deleted:files.filter(f=>f.status==='deleted').length, total:files.length}, files };
