@@ -148,6 +148,76 @@ button,input,select{font:inherit}
 .ver-env{font-size:10px;padding:2px 6px;border-radius:99px;font-weight:800;border:1px solid transparent;flex-shrink:0}
 .ver-env.DEV{background:rgba(90,169,230,.15);color:#5aa9e6;border-color:rgba(90,169,230,.25)}
 .ver-env.LIVE{background:rgba(127,201,127,.15);color:#7fc97f;border-color:rgba(127,201,127,.25)}
+/* ===== Авто-отчёт (готовый отчёт об изменениях) ===== */
+#reportPanel{flex:1;overflow:auto;display:none;background:var(--bg);min-height:0}
+#reportPanel.open{display:block}
+#reportPanel.open + .preview-foot{display:none}
+.report-toolbar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg-panel);position:sticky;top:0;z-index:5}
+.report-toolbar>b{font-size:12.5px}
+.report-toolbar .rep-tools{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.report-wrap{max-width:960px;margin:0 auto;padding:16px 20px 60px}
+.rep-head{background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.rep-title{font-size:17px;font-weight:800}
+.rep-vers{color:var(--text-dim);font-size:12.5px;margin-top:4px}
+.rep-vers b{color:var(--text)}
+.rep-stats{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.rep-chip{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:99px;border:1px solid var(--border);background:var(--bg-elev);color:var(--text-dim)}
+.rep-chip b{font-size:13px;color:var(--text)}
+.rep-chip.added{color:var(--green);border-color:rgba(127,201,127,.3);background:var(--green-bg)}
+.rep-chip.modified{color:var(--yellow);border-color:rgba(214,181,90,.3);background:var(--yellow-bg)}
+.rep-chip.deleted{color:var(--red);border-color:rgba(224,122,122,.3);background:rgba(224,122,122,.12)}
+.rbtn{padding:7px 12px;border-radius:7px;border:1px solid var(--border);background:var(--bg-elev);color:var(--text);cursor:pointer;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:.15s}
+.rbtn:hover{background:var(--bg-hover);border-color:var(--border-light)}
+.rep-section{background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.rep-sec-title{font-size:13px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.rep-sec-title .cnt{margin-left:auto;font-size:11px;color:var(--text-faint);font-weight:600}
+.rep-high{display:flex;gap:9px;align-items:flex-start;padding:7px 10px;border-radius:7px;background:var(--bg);border:1px solid var(--border);margin-bottom:6px;font-size:12.5px;line-height:1.4}
+.rep-high .ico{flex-shrink:0}
+.rep-file{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;background:var(--bg);border:1px solid var(--border);margin-bottom:4px;flex-wrap:wrap}
+.rep-file .fname{font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:700}
+.rep-file .fdelta{font-size:11px;color:var(--text-faint);font-family:ui-monospace,monospace}
+.rep-file .cat-ico{font-size:13px}
+.rep-filepath{font-size:10.5px;color:var(--text-faint);font-family:ui-monospace,monospace;padding:0 10px;margin:-2px 0 6px;word-break:break-all}
+.vbadge{font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;letter-spacing:.03em;white-space:nowrap}
+.vbadge.buff{background:var(--green-bg);color:var(--green);border:1px solid rgba(127,201,127,.3)}
+.vbadge.nerf{background:rgba(224,122,122,.12);color:var(--red);border:1px solid rgba(224,122,122,.3)}
+.vbadge.change{background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(214,181,90,.3)}
+.rep-changes{margin:0 0 10px 4px;padding-left:12px;border-left:2px solid var(--border);display:flex;flex-direction:column;gap:3px}
+.rep-ch{font-size:12px;color:var(--text-dim);font-family:ui-monospace,Menlo,monospace;line-height:1.45;word-break:break-word}
+.rep-ch .pname{color:var(--text);font-weight:600}
+.rep-ch .pv{color:var(--text-dim)}
+.rep-ch .arrow{color:var(--text-faint)}
+.rep-ch .pdelta{font-weight:700}
+.rep-ch .pdelta.delta-up{color:var(--green)}
+.rep-ch .pdelta.delta-down{color:var(--red)}
+.rep-ch.add{color:var(--green)}
+.rep-ch.del{color:var(--red)}
+.rep-more{font-size:11px;color:var(--text-faint);font-style:italic;margin-top:2px}
+.rep-list{display:flex;flex-direction:column;gap:4px}
+.rep-empty{color:var(--text-faint);font-size:13px;padding:40px;text-align:center}
+.rep-foot{color:var(--text-faint);font-size:11px;text-align:center;margin-top:4px}
+ul.cl{margin:0;padding-left:4px;list-style:none}
+ul.cl li{position:relative;padding-left:14px;font-size:12.5px;line-height:1.55;color:var(--text-dim);margin-bottom:2px}
+ul.cl ul{padding-left:6px;margin-top:2px}
+ul.cl>li{margin-bottom:10px}
+ul.cl>li>.cl-entity{color:var(--text);font-weight:700;font-size:13px}
+ul.cl .cl-label{color:var(--text);font-weight:600}
+ul.cl li::before{content:"•";position:absolute;left:2px;color:var(--text-faint)}
+ul.cl>li::before{content:"▸";color:var(--accent)}
+.cl-more{color:var(--text-faint);font-style:italic;font-size:11.5px}
+.cl-find{margin-top:4px}
+.cl-users{margin-top:6px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:12px;color:var(--text-dim);line-height:1.55}
+@media print{
+  .topbar,.sidebar,.explorer,.preview-foot,.tabs,.report-toolbar{display:none!important}
+  html,body{overflow:auto!important;height:auto!important;background:#fff!important;color:#111!important}
+  .app{display:block!important;height:auto!important}
+  .preview{background:#fff!important}
+  .compare-grid{display:none!important}
+  #reportPanel{display:block!important;overflow:visible!important}
+  .report-wrap *{background:#fff!important;color:#111!important;border-color:#bbb!important}
+  .rep-ch .pdelta.delta-up{color:#0a7d32!important}
+  .rep-ch .pdelta.delta-down{color:#b3261e!important}
+}
 @media(max-width:1100px){.sidebar{width:230px;min-width:230px}.explorer{width:340px;min-width:300px}}
 @media(max-width:800px){html,body{overflow:auto;height:auto}.app{flex-direction:column;height:auto}.sidebar,.explorer,.preview{width:100%;min-width:0}.preview{height:620px}}
 </style>
@@ -208,6 +278,7 @@ button,input,select{font:inherit}
 
     <div class="bottom-actions">
       <button class="btn primary" id="compareBtn"><span>⚡</span> Сравнить A → B</button>
+      <button class="btn" id="reportBtn"><span>📊</span> Авто-отчёт</button>
       <button class="btn" id="downloadJsonBtn"><span>⬇</span> Скачать JSON отчёт</button>
       <button class="btn ghost" id="tokenBtn"><span>🔑</span> GitHub токен (для лимитов)</button>
       <div class="small-note">Открыл файл напрямую? Всё работает без сервера — данные тянутся с <b>raw.githubusercontent</b> напрямую.</div>
@@ -246,12 +317,14 @@ button,input,select{font:inherit}
         <div class="filename" id="previewName">Выбери файл</div>
         <span class="badge added" id="previewBadge" style="display:none">—</span>
         <div style="margin-left:auto;display:flex;gap:6px;color:var(--text-faint)">
+          <span style="width:22px;height:22px;display:grid;place-items:center;border-radius:6px;cursor:pointer;border:1px solid transparent" title="Готовый отчёт об изменениях" id="gotoReport">📊</span>
           <span style="width:22px;height:22px;display:grid;place-items:center;border-radius:6px;cursor:pointer;border:1px solid transparent" title="Копировать путь" id="copyPath">⧉</span>
           <span style="width:22px;height:22px;display:grid;place-items:center;border-radius:6px;cursor:pointer;border:1px solid transparent" title="Открыть RAW" id="openRaw">↗</span>
         </div>
       </div>
       <div class="path2" id="previewPath">Слева выбери любой файл — справа увидишь что добавилось / изменилось / удалилось. Для картинок — предпросмотр, для .blk — diff.</div>
-      <div class="tabs" id="tabs"><div class="active" data-tab="preview">Превью</div><div data-tab="diff">Diff текст</div><div data-tab="raw">Raw ссылка</div></div>
+      <div id="autoSummary" style="display:none;margin-top:6px;font-size:11.5px;color:var(--text-dim);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 8px;line-height:1.45"></div>
+      <div class="tabs" id="tabs"><div class="active" data-tab="preview">Превью</div><div data-tab="diff">Diff текст</div><div data-tab="raw">Raw ссылка</div><div data-tab="report">📊 Отчёт</div></div>
     </div>
 
     <div class="compare-grid">
@@ -263,6 +336,16 @@ button,input,select{font:inherit}
         <div class="col-head"><b id="colCmpLabel">Версия B</b><div class="tools"><span id="dlCmp" title="Скачать файл B">↓</span></div></div>
         <div class="col-body" id="colCmp"><span class="empty">—</span></div>
       </div>
+    </div>
+
+    <div id="reportPanel">
+      <div class="report-toolbar"><b>📊 Готовый отчёт об изменениях</b><span class="rep-tools">
+        <button class="rbtn" id="repCopyBtn">⧉ Копировать текст</button>
+        <button class="rbtn" id="repMdBtn">⬇ Скачать .md</button>
+        <button class="rbtn" id="repHtmlBtn">⬇ Скачать .html</button>
+        <button class="rbtn" id="repPrintBtn">🖨 Печать</button>
+      </span></div>
+      <div class="report-wrap" id="reportWrap"></div>
     </div>
 
     <div class="preview-foot">
@@ -303,6 +386,7 @@ let files = []; // {filename, short_path, status, additions, deletions, patch, v
 let filtered = [];
 let selectedPath = null;
 let activeTab = 'preview';
+let reportData = null; // готовый авто-отчёт (заполняется после сравнения)
 let searchQuery = '', sortBy='name', ascending=true;
 let autoEnabled = true;
 let pollTimer = null;
@@ -493,9 +577,13 @@ async function loadCompare(){
     renderTree();
     selectedPath = files[0]?.filename || null;
     renderFileList();
-    renderPreview();
+    // 🤖 Авто-анализ: приложение само разбирает изменения и собирает готовый отчёт
+    analysisCache.clear();
+    reportData = analyzeAll();
+    renderReport();
+    switchTab('report');
     btn.textContent='⚡ Сравнить A → B'; btn.disabled=false;
-    showToast(`Готово: ${files.length} файлов • +${added} ~${modified} -${deleted}`);
+    showToast(`Готово: ${files.length} файлов • +${added} ~${modified} -${deleted} • 📊 отчёт готов`);
   }catch(e){
     console.error(e);
     btn.textContent='⚡ Сравнить A → B'; btn.disabled=false;
@@ -579,12 +667,13 @@ function renderFileList(){
     const delta=f.status==='added'?`<span style="color:var(--green)">+${f.additions||1}</span>`: f.status==='modified'?`<span style="color:var(--green)">+${f.additions}</span> <span style="color:var(--red)">-${f.deletions}</span>`: `<span style="color:var(--red)">-${f.deletions||1}</span>`;
     const vtag=f.vromfs?f.vromfs.replace('.vromfs.bin',''):'other';
     row.innerHTML=`<span class="icon">${icon}</span><span class="path" title="${f.filename}">${f.short_path}</span><span class="vtag">${vtag}</span><span class="delta">${delta}</span>`;
-    row.onclick=()=>{ selectedPath=f.filename; renderFileList(); renderPreview(); };
+    row.onclick=()=>{ selectedPath=f.filename; renderFileList(); if(activeTab==='report') switchTab('preview'); else renderPreview(); };
     listEl.appendChild(row);
   });
 }
 
 function renderPreview(){
+  if(activeTab==='report') return; // экран занят готовым отчётом
   const f = files.find(x=>x.filename===selectedPath) || files[0];
   const baseCol=document.getElementById('colBase'), cmpCol=document.getElementById('colCmp');
   if(!f){
@@ -610,6 +699,28 @@ function renderPreview(){
   document.getElementById('colBaseLabel').textContent=`A: ${baseVersion.id}`;
   document.getElementById('colCmpLabel').textContent=`B: ${cmpVersion.id}`;
   document.getElementById('sizeInfo').textContent = f.status==='added'?`0 → +${f.additions}`: f.status==='deleted'?`-${f.deletions} → 0`: `+${f.additions} / -${f.deletions}`;
+
+  // 🤖 Авто-сводка: одной строкой объясняем, что изменилось в этом файле
+  const autoEl=document.getElementById('autoSummary');
+  if(f.status==='modified'){
+    const an=analyzeFile(f);
+    if(an.changes.length){
+      const vtxt=an.verdict==='buff'?'⬆️ бафф':an.verdict==='nerf'?'⬇️ нерф':'🔧 изменение';
+      const top=an.changes.slice(0,2).map(d=>d.text).join('; ');
+      autoEl.style.display='block';
+      autoEl.innerHTML=`🤖 <b>Авто-анализ:</b> ${vtxt} • ${an.changes.length} изменений — ${escapeHtml(top)}${an.changes.length>2?' …':''}`;
+    } else if(an.note){
+      autoEl.style.display='block';
+      autoEl.innerHTML=`🤖 <b>Авто-анализ:</b> ${escapeHtml(an.note)}`;
+    } else autoEl.style.display='none';
+  } else if(f.status==='added'){
+    const info=addedFileInfo(f);
+    autoEl.style.display='block';
+    autoEl.innerHTML=`🤖 <b>Авто-анализ:</b> новый файл${info.length?' — '+escapeHtml(info.join(', ')):''}`;
+  } else if(f.status==='deleted'){
+    autoEl.style.display='block';
+    autoEl.innerHTML=`🤖 <b>Авто-анализ:</b> файл удалён в ${escapeHtml(cmpVersion.id)}`;
+  } else autoEl.style.display='none';
 
   const isImg = ['png','jpg','jpeg','dds','tga','svg','webp','avif'].includes((f.ext||'').toLowerCase());
   const rawA = `${RAW}/${encodeURIComponent(baseVersion.id).replace(/%2F/g,'/')}/${f.filename}`;
@@ -737,6 +848,1185 @@ function buildVersionDropdown(anchor, onSelect, currentId){
   },30);
 }
 
+// ===== ANALYSIS START =====
+const ROMAN = { '1':'I','2':'II','3':'III','4':'IV','5':'V','6':'VI','7':'VII','8':'VIII','9':'IX','10':'X','11':'XI','12':'XII' };
+const ROMAN2AR = { 'i':'1','ii':'2','iii':'3','iv':'4','v':'5','vi':'6','vii':'7','viii':'8','ix':'9','x':'10' };
+// 🤖 Авто-анализ изменений. Приложение САМО понимает, что изменилось в .blk файлах,
+// определяет баффы/нерфы и собирает готовый отчёт. Блок чистый (без DOM) —
+// между маркерами ANALYSIS START/END, чтобы можно было тестировать отдельно.
+const escHtml = s => String(s==null?'':s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+
+// Словарь параметров BLK: ключ → [русское название, что лучше ('up'/'down'/null)]
+const PARAMS = {
+  'dragCx':['лобовое сопротивление (Cx)','down'],
+  'dragCx0':['Cx при нулевой подъёмной силе','down'],
+  'dragCxS':['Cx доп. коэффициент','down'],
+  'dragCxFlaps':['Cx с выпущенными закрылками','down'],
+  'dragCxAirbrake':['Cx воздушных тормозов','down'],
+  'dragCxGears':['Cx с выпущенным шасси','down'],
+  'inducedDrag':['индуктивное сопротивление','down'],
+  'fuselageAoACd':['сопротивление фюзеляжа','down'],
+  'wingAoACd':['сопротивление крыла','down'],
+  'tailAoACd':['сопротивление оперения','down'],
+  'flapsAoACd':['сопротивление закрылков','down'],
+  'VyMax':['скороподъёмность','up'],
+  'climbRate':['скороподъёмность','up'],
+  'maxAltitude':['практический потолок','up'],
+  'turnTime':['время виража','down'],
+  'maxG':['макс. перегрузка','up'],
+  'criticalAoA':['критический угол атаки','up'],
+  'maxAoA':['макс. угол атаки','up'],
+  'maxSpeed':['макс. скорость','up'],
+  'wingArea':['площадь крыла',null],
+  'wingSpan':['размах крыла',null],
+  'maxPower':['мощность двигателя','up'],
+  'afterburnerPower':['мощность форсажа','up'],
+  'engine.maxPower':['мощность двигателя','up'],
+  'engine.afterburnerPower':['мощность форсажа','up'],
+  'fuelMass':['запас топлива','up'],
+  'fuelConsumption':['расход топлива','down'],
+  'brakeForce':['тормозное усилие','up'],
+  'mass':['масса',null],
+  'mass.m':['масса',null],
+  'reverseSpeed':['скорость заднего хода','up'],
+  'horsePower':['мощность двигателя','up'],
+  'power':['мощность','up'],
+  'crew':['размер экипажа',null],
+  'crewCount':['размер экипажа',null],
+  'cost':['стоимость',null],
+  'repairCost':['стоимость ремонта','down'],
+  'rotationSpeed':['скорость поворота башни','up'],
+  'maxVertSpeed':['скорость вертикального наведения','up'],
+  'maxHorSpeed':['скорость горизонтального наведения','up'],
+  'zoom':['кратность прицела','up'],
+  'thickness':['толщина брони','up'],
+  'maxArmorThickness':['макс. толщина брони','up'],
+  'armor.thickness':['толщина брони','up'],
+  'bullet.mass':['масса снаряда','up'],
+  'bullet.speed':['начальная скорость снаряда','up'],
+  'speed':['скорость','up'],
+  'startSpeed':['начальная скорость','up'],
+  'explosiveMass':['масса ВВ','up'],
+  'maxDist':['дальность стрельбы','up'],
+  'reloadTime':['время перезарядки','down'],
+  'shotFreq':['скорострельность','up'],
+  'rateOfFire':['скорострельность','up'],
+  'spread':['разброс','down'],
+  'recoil':['отдача','down'],
+  'ammo':['боекомплект','up'],
+  'ammoCount':['боекомплект','up'],
+  'penetration':['пробитие','up'],
+};
+
+// Категории файлов по пути
+const CATS = [
+  {id:'fm',      rx:/gamedata\/flightmodels\//,              title:'✈️ Лётные модели (FM)', icon:'✈️'},
+  {id:'air',     rx:/gamedata\/units\/(air|aircraft)/,       title:'🛩️ Авиация (юниты)', icon:'🛩️'},
+  {id:'tank',    rx:/gamedata\/units\/(tank|ground|arty|aa)/, title:'🪖 Наземная техника', icon:'🪖'},
+  {id:'ship',    rx:/gamedata\/units\/(ship|naval|boat)/,    title:'⚓ Флот', icon:'⚓'},
+  {id:'units',   rx:/gamedata\/units\//,                     title:'🧩 Юниты (прочее)', icon:'🧩'},
+  {id:'weapons', rx:/gamedata\/weapons\//,                   title:'💥 Вооружение', icon:'💥'},
+  {id:'tex',     rx:/tex\.vromfs\.bin_u\//,                  title:'🎨 Текстуры и скины', icon:'🎨'},
+  {id:'gui',     rx:/gui\.vromfs\.bin_u\//,                  title:'🖥️ Интерфейс (GUI)', icon:'🖥️'},
+  {id:'mis',     rx:/(\/mis\/|missions)/,                    title:'🗺️ Миссии', icon:'🗺️'},
+  {id:'lang',    rx:/(lang|localization)/,                   title:'🌐 Локализация', icon:'🌐'},
+];
+const IMG_EXTS = ['png','jpg','jpeg','dds','tga','webp','avif','svg'];
+
+function categorizeFile(f){
+  const p = f.filename||'';
+  for(const c of CATS) if(c.rx.test(p)) return c;
+  if(IMG_EXTS.includes(f.ext||'')) return {id:'img', title:'🖼️ Изображения', icon:'🖼️'};
+  return {id:'other', title:'📦 Прочее', icon:'📦'};
+}
+
+// Красивое имя юнита из имени файла: mig_35.blk → MiG-35, f_4e_phantom → F-4E Phantom
+const NAME_FIX = {mig:'MiG',su:'Su',yak:'Yak',la:'La',il:'Il',tu:'Tu',pe:'Pe',f:'F',a:'A',p:'P',t:'T',bf:'Bf',fw:'Fw',me:'Me',he:'He',ki:'Ki',h:'H',b:'B',i:'I',pz:'Pz',kv:'КВ',is:'ИС',bmp:'БМП',bmd:'БМД',t34:'T-34',t54:'T-54',t55:'T-55',t62:'T-62',t64:'T-64',t72:'T-72',t80:'T-80',t90:'T-90',leo:'Leo',type:'Type',amx:'AMX',cv:'CV',oto:'OTO',ztz:'ZTZ',pl:'PL'};
+function prettifyName(base){
+  let t = String(base||'').replace(/\.(blk[csx]?|dds|png|jpe?g|webp|tga|svg)$/i,'').replace(/[_\-]+/g,' ').trim();
+  if(!t) return String(base||'?');
+  const toks = t.split(/\s+/).map(tok=>{
+    const low = tok.toLowerCase();
+    if(NAME_FIX[low]) return NAME_FIX[low];
+    let m = low.match(/^mk(\d+|[ivx]+)([a-z]?)$/);
+    if(m){ let v=m[1]; v=/^[ivx]+$/.test(v)?(ROMAN2AR[v]||v):v; return 'Mk. '+v+(m[2]?m[2].toUpperCase():''); }
+    m = low.match(/^fb(\d+)$/); if(m) return 'F.B. '+m[1];
+    m = low.match(/^fz(\d+)$/); if(m) return 'Fz. '+m[1];
+    return tok.charAt(0).toUpperCase()+tok.slice(1);
+  });
+  const out=[];
+  for(let i=0;i<toks.length;i++){
+    const prev = out[out.length-1];
+    if(prev && !prev.includes('-') && /^[A-Za-z][A-Za-z0-9.]{0,9}$/.test(prev) && /^\d{1,3}[A-Za-z]{0,2}$/.test(toks[i])){
+      out[out.length-1] = prev+'-'+toks[i].toUpperCase();
+    } else out.push(toks[i]);
+  }
+  return out.join(' ');
+}
+
+// Разбор одной строки BLK
+function parseBlkLine(line){
+  const s = String(line||'').trim();
+  if(!s || s.startsWith('//')) return null;
+  let m = s.match(/^([A-Za-z0-9_\-\.]+)\s*:\s*(.*?);?\s*$/);
+  if(m) return {kind:'param', key:m[1], value:m[2].trim()};
+  m = s.match(/^([A-Za-z0-9_\-\.]+)\s*\{/);
+  if(m) return {kind:'block', key:m[1]};
+  m = s.match(/^([A-Za-z0-9_\-\.]+)$/);
+  if(m) return {kind:'bare', key:m[1]};
+  return {kind:'raw', raw:s};
+}
+function nums(v){
+  if(v==null) return null;
+  const m = String(v).match(/-?\d+(\.\d+)?([eE][+-]?\d+)?/g);
+  return m ? m.map(Number) : null;
+}
+function fmtNum(n){
+  if(!isFinite(n)) return String(n);
+  return String(parseFloat(n.toFixed(6)));
+}
+function paramInfo(key, ctx){
+  const last = ctx && ctx.length ? ctx[ctx.length-1] : null;
+  if(last){
+    const d = PARAMS[last+'.'+key];
+    if(d) return {name:d[0], better:d[1]};
+  }
+  const p = PARAMS[key];
+  if(p) return {name:p[0], better:p[1]};
+  return {name:key, better:null};
+}
+
+// Разбор unified diff (patch от GitHub) в список изменений BLK
+function parsePatch(patch){
+  const out = [];
+  const lines = String(patch||'').split('\n');
+  const ctx = [];
+  let pendingDel = [];
+  let inHunk = false;
+  const updCtx = (line)=>{
+    const s = String(line||'').trim();
+    if(!s) return;
+    const opens = (s.match(/\{/g)||[]).length;
+    const closes = (s.match(/\}/g)||[]).length;
+    if(opens>closes){
+      const m = s.match(/^([A-Za-z0-9_\-\.]+)/);
+      if(m) ctx.push(m[1]);
+    } else if(closes>opens){
+      let n = closes-opens;
+      while(n-->0 && ctx.length) ctx.pop();
+    }
+  };
+  const flushDel = ()=>{ while(pendingDel.length) out.push(...makeChange(pendingDel.shift(), null, ctx)); };
+  const emit = (delLine, addLine)=>{ out.push(...makeChange(delLine, addLine, ctx)); };
+  for(let i=0;i<lines.length;i++){
+    const l = lines[i];
+    if(l.startsWith('@@')){ flushDel(); inHunk = true; continue; }
+    if(l.startsWith('diff ')||l.startsWith('index ')){ flushDel(); inHunk = false; continue; }
+    if(l.startsWith('---')||l.startsWith('+++')) continue;
+    if(!inHunk) continue;
+    if(l.startsWith('-')){ pendingDel.push(l.slice(1)); continue; }
+    if(l.startsWith('+')){
+      const addL = l.slice(1);
+      const addP = parseBlkLine(addL);
+      let pairIdx = 0;
+      // умное спаривание: ищем среди удалённых строк ту же параметр (ключ), чтобы iconType: a → iconType: b считалось изменением
+      if(pendingDel.length && addP && addP.kind==='param'){
+        const idx = pendingDel.findIndex(dl=>{
+          const dp = parseBlkLine(dl);
+          return dp && dp.kind==='param' && dp.key===addP.key;
+        });
+        if(idx>=0) pairIdx = idx;
+      }
+      if(pendingDel.length) emit(pendingDel.splice(pairIdx,1)[0], addL);
+      else emit(null, addL);
+      updCtx(addL);
+      continue;
+    }
+    flushDel();
+    updCtx(l.startsWith(' ') ? l.slice(1) : l);
+  }
+  flushDel();
+  return out;
+}
+function changeFromParsed(dir, p, ctx){
+  const base = {ctx: ctx.slice()};
+  if(p.kind==='param') return Object.assign(base,{kind:dir==='del'?'delParam':'addParam', key:p.key, val:p.value});
+  if(p.kind==='block') return Object.assign(base,{kind:dir==='del'?'delBlock':'addBlock', key:p.key});
+  return Object.assign(base,{kind:dir==='del'?'delRaw':'addRaw', raw:(p.raw!=null?p.raw:(p.key||''))});
+}
+function makeChange(delLine, addLine, ctx){
+  const d = delLine!=null ? parseBlkLine(delLine) : null;
+  const a = addLine!=null ? parseBlkLine(addLine) : null;
+  if(d && a){
+    if(d.kind==='param' && a.kind==='param' && d.key===a.key){
+      return [{ctx:ctx.slice(), kind:'value', key:d.key, oldV:d.value, newV:a.value}];
+    }
+    if(d.kind==='block' && a.kind==='block' && d.key===a.key){
+      return [{ctx:ctx.slice(), kind:'value', key:d.key, oldV:'', newV:''}];
+    }
+    const out=[];
+    if(d) out.push(changeFromParsed('del', d, ctx));
+    if(a) out.push(changeFromParsed('add', a, ctx));
+    return out;
+  }
+  if(d) return [changeFromParsed('del', d, ctx)];
+  if(a) return [changeFromParsed('add', a, ctx)];
+  return [];
+}
+
+// Превращает изменение в человекочитаемое описание (+html, +текст, +оценка бафф/нерф)
+function describeChange(ch){
+  if(ch.kind==='value'){
+    if(ch.oldV==='' && ch.newV==='') return null;
+    const info = paramInfo(ch.key, ch.ctx);
+    const dn = nums(ch.oldV), nn = nums(ch.newV);
+    if(dn && nn && dn.length===nn.length){
+      if(dn.every((v,i)=>v===nn[i])) return null; // значения равны — неинтересно
+      const delta = nn.map((v,i)=>v-dn[i]);
+      const deltaStr = delta.length===1
+        ? (delta[0]>0?'+':'')+fmtNum(delta[0])
+        : delta.map(d=>(d>0?'+':'')+fmtNum(d)).join(' / ');
+      let pct=null, pctStr='';
+      if(dn[0]!==0 && isFinite(dn[0])){
+        pct=Math.abs((nn[0]-dn[0])/dn[0])*100;
+        pctStr=` (${nn[0]>dn[0]?'+':'-'}${pct.toFixed(1)}%)`;
+      }
+      let score=0, tag='';
+      if(info.better){
+        const good = info.better==='up' ? nn[0]>dn[0] : nn[0]<dn[0];
+        score = good?1:-1;
+        tag = good?'бафф':'нерф';
+      }
+      const dirCls = nn[0]>dn[0] ? 'delta-up' : 'delta-down';
+      const deltaFull = pct!=null ? `(${deltaStr}, ${nn[0]>dn[0]?'+':'-'}${pct.toFixed(1)}%)` : `(${deltaStr})`;
+      const text = `${info.name}: ${ch.oldV} → ${ch.newV} ${deltaFull}${tag?' • '+tag:''}`;
+      const html = `<div class="rep-ch"><span class="pname">${escHtml(info.name)}</span> <span class="pv">${escHtml(ch.oldV)}</span> <span class="arrow">→</span> <span class="pv">${escHtml(ch.newV)}</span> <span class="pdelta ${dirCls}">${escHtml(deltaFull)}</span>${tag?` <span class="vbadge ${score>0?'buff':'nerf'}">${tag}</span>`:''}</div>`;
+      return {kind:'value', name:info.name, key:ch.key, better:info.better, oldV:ch.oldV, newV:ch.newV, deltaStr, pct, pctStr, score, tag, text, html};
+    }
+    const text = `${info.name}: ${ch.oldV} → ${ch.newV}`;
+    const html = `<div class="rep-ch"><span class="pname">${escHtml(info.name)}</span> <span class="pv">${escHtml(ch.oldV)}</span> <span class="arrow">→</span> <span class="pv">${escHtml(ch.newV)}</span></div>`;
+    return {kind:'value', name:info.name, key:ch.key, better:null, oldV:ch.oldV, newV:ch.newV, deltaStr:'', pct:null, pctStr:'', score:0, tag:'', text, html};
+  }
+  if(ch.kind==='addParam' || ch.kind==='addBlock'){
+    const info = paramInfo(ch.key, ch.ctx);
+    const isBlock = ch.kind==='addBlock';
+    const text = isBlock ? `добавлен блок «${info.name}»` : `добавлен параметр ${info.name}${ch.val!=null?' = '+ch.val:''}`;
+    const html = `<div class="rep-ch add">➕ ${escHtml(text)}</div>`;
+    return {kind:'add', name:info.name, key:ch.key, score:0, tag:'', text, html};
+  }
+  if(ch.kind==='delParam' || ch.kind==='delBlock'){
+    const info = paramInfo(ch.key, ch.ctx);
+    const isBlock = ch.kind==='delBlock';
+    const text = isBlock ? `удалён блок «${info.name}»` : `удалён параметр ${info.name}${ch.val!=null?' (было '+ch.val+')':''}`;
+    const html = `<div class="rep-ch del">➖ ${escHtml(text)}</div>`;
+    return {kind:'del', name:info.name, key:ch.key, score:0, tag:'', text, html};
+  }
+  const text = (ch.kind==='delRaw'?'удалена строка: ':'добавлена строка: ')+(ch.raw||'');
+  const html = `<div class="rep-ch ${ch.kind==='delRaw'?'del':'add'}">${escHtml(text)}</div>`;
+  return {kind:'raw', name:'', score:0, tag:'', text, html};
+}
+
+// Анализ одного файла (с кэшем)
+const analysisCache = new Map();
+function analyzeFile(f){
+  if(analysisCache.has(f.filename)) return analysisCache.get(f.filename);
+  const res = {changes:[], score:0, verdict:'change', rawCount:0, note:null};
+  if(f.patch){
+    const changes = parsePatch(String(f.patch).slice(0, 300000));
+    const descs=[]; let score=0;
+    changes.forEach(ch=>{ const d=describeChange(ch); if(!d) return; descs.push(d); score+=d.score; });
+    res.changes=descs; res.score=score; res.rawCount=changes.length;
+    res.verdict = score>0?'buff':score<0?'nerf':'change';
+    if(!descs.length && changes.length) res.note='изменения не распознаны (не BLK-формат или бинарный diff)';
+  } else {
+    res.note = 'diff недоступен (бинарный файл или лимит GitHub)';
+  }
+  analysisCache.set(f.filename, res);
+  return res;
+}
+
+// Ключевые параметры нового (добавленного) файла — вытащим из patch
+function addedFileInfo(f){
+  if(!f.patch) return [];
+  const want = ['mass','maxSpeed','maxAltitude','VyMax','turnTime','maxPower','afterburnerPower','crew','thickness','speed','reloadTime','ammo','maxDist'];
+  const found=[]; const seen=new Set();
+  for(const l of String(f.patch).split('\n')){
+    if(found.length>=4) break;
+    if(!l.startsWith('+') || l.startsWith('+++')) continue;
+    const p = parseBlkLine(l.slice(1));
+    if(p && p.kind==='param' && want.includes(p.key) && !seen.has(p.key)){
+      seen.add(p.key);
+      found.push(`${paramInfo(p.key,[]).name}: ${p.value}`);
+    }
+  }
+  return found;
+}
+
+// Главный анализ: из списка files собирает готовый отчёт
+function analyzeAll(){
+  const rep = {
+    base: (typeof baseVersion!=='undefined' && baseVersion) ? baseVersion.id : '?',
+    cmp: (typeof cmpVersion!=='undefined' && cmpVersion) ? cmpVersion.id : '?',
+    generated: new Date().toISOString(),
+    stats: {added:0, modified:0, deleted:0, total:0},
+    categories: {},
+    addedFiles: [], deletedFiles: [],
+    highlights: [],
+    binary: {}, // catId → сколько изменено двоичных файлов (без diff)
+  };
+  const list = (typeof files!=='undefined' && Array.isArray(files)) ? files : [];
+  const added = list.filter(f=>f.status==='added');
+  const modified = list.filter(f=>f.status==='modified');
+  const deleted = list.filter(f=>f.status==='deleted');
+  rep.stats = {added:added.length, modified:modified.length, deleted:deleted.length, total:list.length};
+  const UNIT_CATS = new Set(['fm','air','tank','ship','units']);
+
+  added.forEach(f=>{
+    const cat = categorizeFile(f);
+    rep.addedFiles.push({file:f, cat});
+    if(UNIT_CATS.has(cat.id) && /\.blk[csx]?$/i.test(f.filename)){
+      const nm = prettifyName(f.short_path.split('/').pop());
+      const info = addedFileInfo(f);
+      rep.highlights.push({ico:'🆕', text:`Новый юнит/FM: ${nm}${info.length?' — '+info.join(', '):''}`, file:f.filename});
+    } else if(cat.id==='tex' || cat.id==='img'){
+      rep.highlights.push({ico:'🎨', text:`Новая текстура/скин: ${f.short_path.split('/').pop()}`, file:f.filename});
+    }
+  });
+  deleted.forEach(f=>{
+    const cat = categorizeFile(f);
+    rep.deletedFiles.push({file:f, cat});
+    if(UNIT_CATS.has(cat.id) && /\.blk[csx]?$/i.test(f.filename)){
+      rep.highlights.push({ico:'🗑️', text:`Удалён юнит/FM: ${prettifyName(f.short_path.split('/').pop())}`, file:f.filename});
+    }
+  });
+
+  modified.forEach(f=>{
+    const cat = categorizeFile(f);
+    if(!f.patch && (cat.id==='tex'||cat.id==='img'||cat.id==='other')){
+      // двоичные изменения (текстуры) — считаем, но не разбираем построчно
+      rep.binary[cat.id] = (rep.binary[cat.id]||0)+1;
+      return;
+    }
+    const an = analyzeFile(f);
+    const fr = {file:f, cat, changes:an.changes, score:an.score, verdict:an.verdict, note:an.note};
+    if(!rep.categories[cat.id]) rep.categories[cat.id]={cat, files:[]};
+    rep.categories[cat.id].files.push(fr);
+    // Крупные баффы/нерфы выносим в «Главное»
+    if(an.verdict!=='change' && UNIT_CATS.has(cat.id)){
+      let top=null;
+      an.changes.forEach(d=>{ if(d.pct!=null && (!top || d.pct>top.pct)) top=d; });
+      if(top && top.pct>=5){
+        rep.highlights.push({ico: an.verdict==='buff'?'📈':'📉', text:`${prettifyName(f.short_path.split('/').pop())}: ${top.name}${top.pctStr} (${top.oldV} → ${top.newV})`, file:f.filename});
+      }
+    }
+  });
+
+  // категории, где только двоичные изменённые файлы
+  Object.keys(rep.binary).forEach(cid=>{
+    if(!rep.categories[cid]){
+      const cat = CATS.find(c=>c.id===cid) || {id:cid, title:'📦 Прочее', icon:'📦'};
+      rep.categories[cid]={cat, files:[]};
+    }
+  });
+  // сортировка: файлы внутри категории — по значимости изменения
+  Object.values(rep.categories).forEach(crep=>{
+    crep.files.sort((a,b)=> (Math.abs(b.score)-Math.abs(a.score)) || a.file.filename.localeCompare(b.file.filename));
+  });
+  return rep;
+}
+
+// HTML-фрагмент готового отчёта (общий для вкладки и standalone-экспорта)
+function buildReportHtml(rep){
+  let h='';
+  h+=`<div class="rep-head">
+    <div class="rep-title">📋 Отчёт об изменениях</div>
+    <div class="rep-vers"><b>${escHtml(rep.base)}</b> → <b>${escHtml(rep.cmp)}</b> • сгенерировано ${escHtml(new Date(rep.generated).toLocaleString('ru-RU'))} • авто-анализ 🤖</div>
+    <div class="rep-stats">
+      <span class="rep-chip added">🆕 Добавлено <b>${rep.stats.added}</b></span>
+      <span class="rep-chip modified">🔧 Изменено <b>${rep.stats.modified}</b></span>
+      <span class="rep-chip deleted">🗑️ Удалено <b>${rep.stats.deleted}</b></span>
+      <span class="rep-chip">Всего <b>${rep.stats.total}</b></span>
+    </div>
+  </div>`;
+  const changelog = buildChangelog(rep);
+  if(changelog.length) h+=renderChangelogHtml(changelog);
+  if(rep.highlights.length){
+    h+=`<div class="rep-section"><div class="rep-sec-title">⭐ Главное <span class="cnt">авто-анализ • ${rep.highlights.length}</span></div>`;
+    rep.highlights.slice(0,30).forEach(hl=>{ h+=`<div class="rep-high"><span class="ico">${hl.ico}</span><span>${escHtml(hl.text)}</span></div>`; });
+    h+=`</div>`;
+  }
+  const cats = Object.values(rep.categories).sort((a,b)=>b.files.length-a.files.length);
+  cats.forEach(crep=>{
+    h+=`<div class="rep-section"><div class="rep-sec-title">${crep.cat.icon} ${escHtml(crep.cat.title)} <span class="cnt">${crep.files.length} файл(ов)</span></div>`;
+    if(rep.binary && rep.binary[crep.cat.id]){
+      h+=`<div class="rep-file"><span class="cat-ico">🖼️</span><span class="fname">Обновлено двоичных файлов: ${rep.binary[crep.cat.id]}</span><span class="fdelta">текстовый diff недоступен</span></div>`;
+    }
+    crep.files.slice(0,100).forEach(fr=>{
+      const vBadge = fr.verdict==='buff'?'<span class="vbadge buff">⬆️ бафф</span>':fr.verdict==='nerf'?'<span class="vbadge nerf">⬇️ нерф</span>':'<span class="vbadge change">🔧 изменение</span>';
+      const fname = escHtml(prettifyName(fr.file.short_path.split('/').pop()));
+      h+=`<div class="rep-file"><span class="fname">${fname}</span>${vBadge}<span class="fdelta">+${fr.file.additions||0} −${fr.file.deletions||0}</span></div>`;
+      h+=`<div class="rep-filepath">${escHtml(fr.file.short_path)}</div>`;
+      if(fr.note){
+        h+=`<div class="rep-changes"><div class="rep-ch">${escHtml(fr.note)}</div></div>`;
+      } else if(fr.changes.length){
+        h+=`<div class="rep-changes">`;
+        fr.changes.slice(0,30).forEach(d=>{ h+=d.html; });
+        if(fr.changes.length>30) h+=`<div class="rep-more">… ещё ${fr.changes.length-30} изменений</div>`;
+        h+=`</div>`;
+      }
+    });
+    if(crep.files.length>100) h+=`<div class="rep-more">… показано 100 из ${crep.files.length} файлов</div>`;
+    h+=`</div>`;
+  });
+  if(!cats.length){
+    h+=`<div class="rep-section"><div class="rep-empty">Нет текстовых изменений — только двоичные файлы или пустой diff.</div></div>`;
+  }
+  if(rep.addedFiles.length){
+    h+=`<div class="rep-section"><div class="rep-sec-title">🆕 Добавленные файлы <span class="cnt">${rep.addedFiles.length}</span></div><div class="rep-list">`;
+    rep.addedFiles.slice(0,150).forEach(({file:f,cat})=>{
+      h+=`<div class="rep-file"><span class="cat-ico">${cat.icon}</span><span class="fname">${escHtml(f.short_path)}</span><span class="fdelta">+${f.additions||'?'} строк</span></div>`;
+    });
+    if(rep.addedFiles.length>150) h+=`<div class="rep-more">… ещё ${rep.addedFiles.length-150} файлов</div>`;
+    h+=`</div></div>`;
+  }
+  if(rep.deletedFiles.length){
+    h+=`<div class="rep-section"><div class="rep-sec-title">🗑️ Удалённые файлы <span class="cnt">${rep.deletedFiles.length}</span></div><div class="rep-list">`;
+    rep.deletedFiles.slice(0,150).forEach(({file:f,cat})=>{
+      h+=`<div class="rep-file"><span class="cat-ico">${cat.icon}</span><span class="fname">${escHtml(f.short_path)}</span></div>`;
+    });
+    if(rep.deletedFiles.length>150) h+=`<div class="rep-more">… ещё ${rep.deletedFiles.length-150} файлов</div>`;
+    h+=`</div></div>`;
+  }
+  h+=`<div class="rep-foot">Отчёт сгенерирован автоматически • ${escHtml(rep.base)} → ${escHtml(rep.cmp)} • War Thunder Datamine App 🤖</div>`;
+  return h;
+}
+
+// Текстовый (Markdown) отчёт — для копирования и скачивания
+function buildMarkdown(rep){
+  const L=[];
+  L.push(`# 📋 Отчёт об изменениях — War Thunder Datamine`);
+  L.push(``);
+  L.push(`**Версии:** ${rep.base} → ${rep.cmp}  `);
+  L.push(`**Сгенерировано:** ${new Date(rep.generated).toLocaleString('ru-RU')} (авто-анализ 🤖)`);
+  L.push(``);
+  L.push(`## 📊 Итого`);
+  L.push(``);
+  L.push(`| Показатель | Значение |`);
+  L.push(`|---|---|`);
+  L.push(`| 🆕 Добавлено файлов | **${rep.stats.added}** |`);
+  L.push(`| 🔧 Изменено файлов | **${rep.stats.modified}** |`);
+  L.push(`| 🗑️ Удалено файлов | **${rep.stats.deleted}** |`);
+  L.push(`| **Всего** | **${rep.stats.total}** |`);
+  const changelog = buildChangelog(rep);
+  if(changelog.length) L.push(changelogMarkdown(changelog));
+  if(rep.highlights.length){
+    L.push(``);
+    L.push(`## ⭐ Главное (авто-анализ)`);
+    L.push(``);
+    rep.highlights.slice(0,30).forEach(h=>L.push(`- ${h.ico} ${h.text}`));
+  }
+  const cats = Object.values(rep.categories).sort((a,b)=>b.files.length-a.files.length);
+  cats.forEach(crep=>{
+    L.push(``);
+    L.push(`## ${crep.cat.title} — ${crep.files.length} файл(ов)`);
+    if(rep.binary && rep.binary[crep.cat.id]){
+      L.push(``);
+      L.push(`_Обновлено двоичных файлов (без текстового diff): ${rep.binary[crep.cat.id]}_`);
+    }
+    crep.files.slice(0,100).forEach(fr=>{
+      L.push(``);
+      const vEmoji = fr.verdict==='buff'?'⬆️ бафф':fr.verdict==='nerf'?'⬇️ нерф':'🔧 изменение';
+      L.push(`### ${vEmoji} — ${prettifyName(fr.file.short_path.split('/').pop())} — \`${fr.file.short_path}\``);
+      if(fr.note){ L.push(`> ${fr.note}`); return; }
+      fr.changes.slice(0,40).forEach(d=>L.push(`- ${d.text}`));
+      if(fr.changes.length>40) L.push(`- … ещё ${fr.changes.length-40} изменений`);
+    });
+  });
+  if(rep.addedFiles.length){
+    L.push(``);
+    L.push(`## 🆕 Добавленные файлы (${rep.addedFiles.length})`);
+    L.push(``);
+    rep.addedFiles.slice(0,200).forEach(({file:f})=>L.push(`- \`${f.short_path}\``));
+    if(rep.addedFiles.length>200) L.push(`- … ещё ${rep.addedFiles.length-200}`);
+  }
+  if(rep.deletedFiles.length){
+    L.push(``);
+    L.push(`## 🗑️ Удалённые файлы (${rep.deletedFiles.length})`);
+    L.push(``);
+    rep.deletedFiles.slice(0,200).forEach(({file:f})=>L.push(`- \`${f.short_path}\``));
+    if(rep.deletedFiles.length>200) L.push(`- … ещё ${rep.deletedFiles.length-200}`);
+  }
+  L.push(``);
+  L.push(`---`);
+  L.push(`*Отчёт сгенерирован автоматически — War Thunder Datamine App 🤖*`);
+  return L.join('\n');
+}
+
+// Standalone HTML-отчёт (скачать и открыть где угодно)
+const REPORT_CSS = `body{background:#0f0f0f;color:#e6e6e6;font-family:Inter,Segoe UI,Arial,sans-serif;font-size:13px;margin:0;padding:24px}
+.report-wrap{max-width:960px;margin:0 auto}
+.rep-head{background:#1c1c1c;border:1px solid #2b2b2b;border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.rep-title{font-size:17px;font-weight:800}
+.rep-vers{color:#9a9a9a;font-size:12.5px;margin-top:4px}.rep-vers b{color:#e6e6e6}
+.rep-stats{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.rep-chip{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:99px;border:1px solid #2b2b2b;background:#232323;color:#9a9a9a}
+.rep-chip b{font-size:13px;color:#e6e6e6}
+.rep-chip.added{color:#7fc97f;border-color:rgba(127,201,127,.3);background:rgba(127,201,127,.12)}
+.rep-chip.modified{color:#d6b55a;border-color:rgba(214,181,90,.3);background:rgba(214,181,90,.12)}
+.rep-chip.deleted{color:#e07a7a;border-color:rgba(224,122,122,.3);background:rgba(224,122,122,.12)}
+.rep-section{background:#1c1c1c;border:1px solid #2b2b2b;border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.rep-sec-title{font-size:13px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.rep-sec-title .cnt{margin-left:auto;font-size:11px;color:#6b6b6b;font-weight:600}
+.rep-high{display:flex;gap:9px;align-items:flex-start;padding:7px 10px;border-radius:7px;background:#0f0f0f;border:1px solid #2b2b2b;margin-bottom:6px;font-size:12.5px;line-height:1.4}
+.rep-file{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;background:#0f0f0f;border:1px solid #2b2b2b;margin-bottom:4px;flex-wrap:wrap}
+.rep-file .fname{font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:700}
+.rep-file .fdelta{font-size:11px;color:#6b6b6b;font-family:ui-monospace,monospace}
+.rep-filepath{font-size:10.5px;color:#6b6b6b;font-family:ui-monospace,monospace;padding:0 10px;margin:-2px 0 6px;word-break:break-all}
+.vbadge{font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.vbadge.buff{background:rgba(127,201,127,.12);color:#7fc97f;border:1px solid rgba(127,201,127,.3)}
+.vbadge.nerf{background:rgba(224,122,122,.12);color:#e07a7a;border:1px solid rgba(224,122,122,.3)}
+.vbadge.change{background:rgba(214,181,90,.12);color:#d6b55a;border:1px solid rgba(214,181,90,.3)}
+.rep-changes{margin:0 0 10px 4px;padding-left:12px;border-left:2px solid #2b2b2b;display:flex;flex-direction:column;gap:3px}
+.rep-ch{font-size:12px;color:#9a9a9a;font-family:ui-monospace,Menlo,monospace;line-height:1.45;word-break:break-word}
+.rep-ch .pname{color:#e6e6e6;font-weight:600}.rep-ch .pv{color:#9a9a9a}.rep-ch .arrow{color:#6b6b6b}
+.rep-ch .pdelta{font-weight:700}.rep-ch .pdelta.delta-up{color:#7fc97f}.rep-ch .pdelta.delta-down{color:#e07a7a}
+.rep-ch.add{color:#7fc97f}.rep-ch.del{color:#e07a7a}
+.rep-more{font-size:11px;color:#6b6b6b;font-style:italic;margin-top:2px}
+.rep-list{display:flex;flex-direction:column;gap:4px}
+.rep-empty{color:#6b6b6b;font-size:13px;padding:40px;text-align:center}
+.rep-foot{color:#6b6b6b;font-size:11px;text-align:center;margin-top:4px}`;
+function buildStandaloneHtml(rep){
+  return `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Отчёт ${escHtml(rep.base)} → ${escHtml(rep.cmp)}</title><style>${REPORT_CSS}</style></head><body><div class="report-wrap">${buildReportHtml(rep)}</div></body></html>`;
+}
+// ===== ANALYSIS END =====
+// ===== SEMANTIC START =====
+// 🗒️ Структурированный changelog: семантический анализ по типам файлов.
+// Формат как в патчнотах: юнит → тип изменения → детали, с группировкой
+// одинаковых изменений (один bullet на много юнитов/карт).
+const COUNTRY_PREFIX = /^(uk|us|usa|ger|jp|ussr|fr|it|cn|sw|cz|pl|nl|fi|hu|ro|br|is|ko|au|ca)_/i;
+const BOMB_ABBR = { mc:'M.C.', gp:'G.P.', sap:'S.A.P.', he:'H.E.', ap:'A.P.', apc:'A.P.C.', apcbc:'A.P.C.B.C.', apds:'A.P.D.S.', apcr:'A.P.C.R.', hvap:'H.V.A.P.', heat:'H.E.A.T.', heatfs:'H.E.A.T.-FS.', aphe:'A.P.H.E.', hefi:'H.E.F.I.', heiat:'H.E.I.A.T.', at:'A.T.', aa:'A.A.', frag:'Frag.', inc:'Inc.', apit:'A.P.I.T.' };
+const BOMB_NUM = { '50lb':'50 lb','100lb':'100 lb','250lb':'250 lb','500lb':'500 lb','500lbs':'500 lb','1000lb':'1000 lb','1000lbs':'1000 lb','2000lb':'2000 lb','4000lb':'4000 lb','50kg':'50 kg','100kg':'100 kg','250kg':'250 kg','500kg':'500 kg','1000kg':'1000 kg','1500kg':'1500 kg','3000kg':'3000 kg' };
+const BOMB_DROP_SUFFIX = /_(bomb|bombs|gun|guns|rocket|rockets|missile|missiles|torpedo|torpedoes|mine|mines|default|ap|long_tail|short_tail|with_tracer|tracer|practice|thin_wall|naval)$/i;
+
+// Имя бомбы из пути файла: gameData/Weapons/BombGuns/uk_500lb_mc_mk1_mk4_long_tail_bomb.blk → "500 lb M.C. Mk. I"
+function prettifyBombPath(p){
+  let s = String(p||'').replace(/\\/g,'/');
+  s = s.split('/').pop() || s;
+  s = s.replace(/\.(blk|blkx)$/i,'');
+  s = s.replace(COUNTRY_PREFIX,'');
+  while(BOMB_DROP_SUFFIX.test(s)) s = s.replace(BOMB_DROP_SUFFIX,'');
+  const toks = s.split('_').filter(Boolean);
+  const out = [];
+  let mkSeen = 0;
+  for(let t of toks){
+    const low = t.toLowerCase();
+    if(BOMB_NUM[low]){ out.push(BOMB_NUM[low]); continue; }
+    if(BOMB_ABBR[low]){ out.push(BOMB_ABBR[low]); continue; }
+    let m = low.match(/^mk(\d+|[ivx]+)$/);
+    if(m){
+      let r = m[1];
+      r = /^\d+$/.test(r) ? (ROMAN[r]||r) : r.toUpperCase();
+      mkSeen++;
+      if(mkSeen===1) out.push('Mk. '+r); // файл часто покрывает несколько модификаций — берём первую
+      continue;
+    }
+    m = low.match(/^an\/?m(\d+[a-z]?\d*)$/);
+    if(m){ out.push('AN/M'+m[1].toUpperCase()); continue; }
+    out.push(t);
+  }
+  const dedup = [];
+  for(const t of out) if(dedup[dedup.length-1]!==t) dedup.push(t);
+  return dedup.join(' ') || s;
+}
+
+// Имя самолёта из имени пресета: tempest_mkv_500lbs_mc_bombs.blkx → "Tempest Mk. 5"
+const PRESET_STOP = new Set(['bombs','bomb','guns','gun','rockets','rocket','torpedoes','torpedo','mines','mine','smoke','smokes','flares','flare','chaff','countermeasures','presets','preset','loadout','loadouts','fuel','drop','tanks','tank','pods','pod','aa','aam','agm','atgm','mc','gp','sap','he','ap','heat','2x','4x','6x','8x','12x','14x']);
+function mapDesignation(tok){
+  const low = String(tok).toLowerCase();
+  let m = low.match(/^mk(\d+|[ivx]+)([a-z]?)$/);
+  if(m){
+    let v = m[1];
+    v = /^[ivx]+$/.test(v) ? (ROMAN2AR[v]||v) : v;
+    return 'Mk. '+v+(m[2]?m[2].toUpperCase():'');
+  }
+  m = low.match(/^fb(\d+)$/);
+  if(m) return 'F.B. '+m[1];
+  m = low.match(/^fz(\d+)$/);
+  if(m) return 'Fz. '+m[1];
+  return tok.charAt(0).toUpperCase()+tok.slice(1);
+}
+function prettifyAircraftFromPreset(fname){
+  let s = String(fname||'').replace(/\.blkx?$/i,'');
+  const toks = s.split('_').filter(Boolean);
+  const ac = [];
+  for(const t of toks){
+    const low = t.toLowerCase();
+    if(/^(mk|fb|fz)/i.test(low)){ ac.push(t); continue; }
+    if(/^\d/.test(low)) break;
+    if(PRESET_STOP.has(low)) break;
+    if(low.length>=5 && /\d/.test(low)) break;
+    ac.push(t);
+  }
+  if(!ac.length && toks.length) ac.push(toks[0]);
+  return ac.map(mapDesignation).join(' ');
+}
+
+// ===== Классы брони (gamedata/damage_model/armor_classes.blkx) =====
+const ARMOR_MATERIAL = [
+  ['dural_nikel','дюралево-никелевый сплав'], ['boron_carbide','карбид бора'],
+  ['alum_alloy','алюминиевый сплав'], ['aluminum_armor','алюминиевая броня'], ['aluminium','алюминий'],
+  ['space_composite','композитная броня'], ['fireproof_composite','огнеупорный композит'],
+  ['tank_textolite','текстолит'], ['rubber_metal','резинометалл'], ['rubber_fabric','резиноткань'],
+  ['armour_aramide','арамидная ткань'], ['dural','дюралюминий'], ['steel','сталь'], ['glass','стекло'],
+  ['wood','дерево'], ['armor','броня'], ['kevlar','кевлар'], ['titan','титан'], ['composite','композит'],
+  ['ceramic','керамика'], ['plexiglas','плексиглас'], ['fibreglass','стеклопластик'], ['aramid','арамид'],
+  ['rubber','резина'], ['concrete','бетон'], ['brick','кирпич'], ['sand','песок'], ['graphite','графит'],
+  ['RHA','RHA'], ['CHA','CHA'], ['ERA','ERA'], ['spaced_armor','разнесённая броня'], ['grille','решётка'],
+];
+const ARMOR_PART = { tail:'хвостовое оперение', fin:'киль и стабилизаторы', fuse:'фюзеляж', wing:'крыло', elevator:'рули, элероны и закрылки', cover:'обшивка', engine:'двигатель', cockpit:'кабина', spar:'лонжерон', turret:'башня', hull:'корпус', barrel:'ствол', track:'гусеница', wheel:'колесо', driver:'место мехвода', gunner:'пулемёт', commander:'командир', pilot:'пилот', fuel:'топливная система', cooling:'система охлаждения', ammo:'боеприпасы', optics:'оптика', antenna:'антенна', tank:'танк', tanks:'танки', jet:'реактивный' };
+const ARMOR_VARIANT_SKIP = new Set(['na','nb','nbj','air','modern','light','heavy','s','m','l','mod','nbhl','screen','screens','fabric','vest','filing','shield','nb_2','c']);
+const ARMOR_PARAMS = {
+  explosionArmorQuality: {name:'модификатор брони против фугасов', fmt:'pct'},
+  shatterArmorQuality: {name:'модификатор брони против осколков', fmt:'pct'},
+  genericArmorQuality: {name:'модификатор брони (общий)', fmt:'pct'},
+  explosionDamageMult: {name:'множитель фугасного урона', fmt:'pct'},
+  shatterDamageMult: {name:'множитель осколочного урона', fmt:'pct'},
+  genericDamageMult: {name:'множитель урона (общий)', fmt:'pct'},
+  shatterEffectiveThicknessMax: {name:'макс. эффективная толщина против осколков', fmt:'mmCap'},
+  armorThickness: {name:'толщина брони', fmt:'mm'},
+  armorThrough: {name:'пробитие брони', fmt:'mm'},
+  ricochetAngle: {name:'угол рикошета', fmt:'deg'},
+  ricochetDamage: {name:'урон при рикошете', fmt:'pct'},
+  ricochetCosinePower: {name:'степень косинуса рикошета', fmt:'num'},
+  restrainDamage: {name:'сдерживание урона', fmt:'pct'},
+  oneSided: {name:'односторонняя броня', fmt:'bool'},
+};
+function decodeArmorClass(name){
+  let s = String(name||'');
+  let composite = false;
+  if(s.startsWith('c_')){ composite = true; s = s.slice(2); }
+  let material = null, matKey = null;
+  for(const [key,label] of ARMOR_MATERIAL){
+    if(s===key){ material=label; matKey=key; s=''; break; }
+    if(s.startsWith(key) && /^[\d_]/.test(s.slice(key.length))){ material=label; matKey=key; s=s.slice(key.length); break; }
+  }
+  if(material==null){
+    // неизвестный материал — просто красивое имя
+    const pretty = s.split('_').filter(Boolean).map(t=>t.charAt(0).toUpperCase()+t.slice(1)).join(' ');
+    return {material: pretty, matKey: s, thickness: null, part: '', label: pretty};
+  }
+  let thickness = null;
+  const m = s.match(/^(\d+(?:_\d+)?)/);
+  if(m){ thickness = m[1].replace('_','.'); s = s.slice(m[1].length); }
+  const parts = [];
+  s.split('_').filter(Boolean).forEach(t=>{
+    const low = t.toLowerCase();
+    if(ARMOR_VARIANT_SKIP.has(low)) return;
+    parts.push(ARMOR_PART[low] || t);
+  });
+  let label = '';
+  if(thickness) label += `${thickness} мм `;
+  label += material;
+  if(parts.length) label += `, ${parts.join(', ')}`;
+  if(composite) label += ' (композит)';
+  return {material, matKey, thickness, part: parts.join(', '), label};
+}
+function nf(v){ const n = parseFloat(String(v).replace(/["']/g,'')); return isNaN(n) ? String(v) : String(n); }
+function fmtArmorVal(key, v, pi){
+  if(v==null) return '—';
+  const n = parseFloat(String(v).replace(/["']/g,''));
+  if(isNaN(n)) return String(v);
+  const fmt = pi ? pi.fmt : null;
+  if(fmt==='pct') return `${Math.round(n*100)}%`;
+  if(fmt==='mm') return `${n} мм`;
+  if(fmt==='deg') return `${n}°`;
+  if(fmt==='bool') return n ? 'да' : 'нет';
+  return String(n);
+}
+// Разбор patch файла armor_classes.blkx → изменения по классам брони
+function analyzeArmorClassesPatch(patch){
+  const lines = String(patch||'').split('\n');
+  const out = [];
+  let cur = null;
+  let inHunk = false;
+  const flushClass = ()=>{
+    if(!cur) return;
+    cur.pendingDels.forEach(d=>cur.delParams.push(d));
+    cur.pendingDels = [];
+    const byKey = new Map();
+    cur.changes.forEach(c=>byKey.set(c.key,c));
+    cur.delParams.forEach(d=>{ if(!byKey.has(d.key)) byKey.set(d.key,{key:d.key, kind:'del', oldV:d.val}); });
+    cur.addParams.forEach(a=>{ if(!byKey.has(a.key)) byKey.set(a.key,{key:a.key, kind:'add', newV:a.val}); });
+    out.push({name:cur.name, added:cur.added, removed:cur.removed, changes:[...byKey.values()]});
+    cur = null;
+  };
+  for(let i=0;i<lines.length;i++){
+    const l = lines[i];
+    if(l.startsWith('@@')){ inHunk=true; continue; }
+    if(l.startsWith('diff ')||l.startsWith('index ')){ flushClass(); inHunk=false; continue; }
+    if(l.startsWith('---')||l.startsWith('+++')) continue;
+    if(!inHunk) continue;
+    const isDel = l.startsWith('-'), isAdd = l.startsWith('+');
+    const raw = (isDel||isAdd) ? l.slice(1) : (l.startsWith(' ') ? l.slice(1) : l);
+    const trimmed = raw.trim();
+    const hm = trimmed.match(/^"([^"]+)"\s*:\s*\{$/);
+    if(hm){
+      flushClass();
+      cur = {name:hm[1], added:isAdd, removed:isDel, changes:[], delParams:[], addParams:[], pendingDels:[]};
+      continue;
+    }
+    if(!cur) continue;
+    if(trimmed==='}' || trimmed==='},'){ flushClass(); continue; }
+    const kv = raw.match(/^\s*"([^"]+)"\s*:\s*(.*?)\s*,?\s*$/);
+    if(!kv) continue;
+    if(isAdd){
+      // умное спаривание: ищем удалённый параметр с тем же ключом
+      const idx = cur.pendingDels.findIndex(d=>d.key===kv[1]);
+      if(idx>=0){
+        const d = cur.pendingDels.splice(idx,1)[0];
+        cur.changes.push({key:kv[1], kind:'value', oldV:d.val, newV:kv[2]});
+      } else cur.addParams.push({key:kv[1], val:kv[2]});
+      continue;
+    }
+    if(isDel){ cur.pendingDels.push({key:kv[1], val:kv[2]}); continue; }
+    // context-строка: все накопленные del без пары — удалённые параметры
+    cur.pendingDels.forEach(d=>cur.delParams.push(d));
+    cur.pendingDels = [];
+  }
+  flushClass();
+  // рендер в строки
+  const res = [];
+  out.forEach(c=>{
+    const dec = decodeArmorClass(c.name);
+    const base = {name:c.name, matKey:dec.matKey, material:dec.material, thickness:dec.thickness, part:dec.part, label:dec.label};
+    if(c.removed){
+      res.push(Object.assign(base,{removed:true, added:false, lines:[`класс брони удалён: ${dec.label}`], changes:[]}));
+      return;
+    }
+    if(c.added){
+      res.push(Object.assign(base,{removed:false, added:true, lines:[`класс брони добавлен: ${dec.label}`], changes:[]}));
+      return;
+    }
+    const lines = [];
+    c.changes.forEach(ch=>{
+      const pi = ARMOR_PARAMS[ch.key];
+      const name = pi ? pi.name : ch.key;
+      if(ch.kind==='value'){
+        if(ch.oldV===ch.newV) return;
+        if(ch.key==='shatterEffectiveThicknessMax') lines.push(`макс. эффективная толщина против осколков: ${nf(ch.oldV)} → ${nf(ch.newV)} мм`);
+        else lines.push(`${name}: ${fmtArmorVal(ch.key,ch.oldV,pi)} → ${fmtArmorVal(ch.key,ch.newV,pi)}`);
+      } else if(ch.kind==='add'){
+        if(ch.key==='shatterEffectiveThicknessMax') lines.push(`макс. эффективная толщина против осколков теперь ограничена ${nf(ch.newV)} мм`);
+        else lines.push(`${name}: добавлено ${fmtArmorVal(ch.key,ch.newV,pi)}`);
+      } else {
+        lines.push(`${name}: удалено (было ${fmtArmorVal(ch.key,ch.oldV,pi)})`);
+      }
+    });
+    res.push(Object.assign(base,{removed:false, added:false, lines, changes:c.changes}));
+  });
+  return res;
+}
+
+// ===== Загрузка (weaponpresets) =====
+// "separate": true в блоке "trigger": "bombs" → "бомбы теперь сбрасываются по одной"
+function analyzeWeaponPresetPatch(patch){
+  const lines = String(patch||'').split('\n');
+  let inHunk = false;
+  const ctx = { blk:null, trigger:null };
+  const recs = [];
+  let pendingDel = null;
+  const updCtx = (raw)=>{
+    let m = raw.match(/"blk"\s*:\s*"([^"]*)"/); if(m) ctx.blk=m[1];
+    m = raw.match(/"trigger"\s*:\s*"([^"]*)"/); if(m) ctx.trigger=m[1];
+  };
+  const keyVal = (raw)=>{
+    const m = raw.match(/^\s*"([^"]+)"\s*:\s*(.*?)\s*,?\s*$/);
+    return m ? {key:m[1], val:m[2]} : null;
+  };
+  const flushDel = ()=>{
+    if(pendingDel){
+      recs.push({type:'del', key:pendingDel.kv?pendingDel.kv.key:null, val:pendingDel.kv?pendingDel.kv.val:null, ctx:Object.assign({},ctx)});
+      pendingDel = null;
+    }
+  };
+  for(let i=0;i<lines.length;i++){
+    const l = lines[i];
+    if(l.startsWith('@@')){ flushDel(); inHunk=true; continue; }
+    if(l.startsWith('diff ')||l.startsWith('index ')){ flushDel(); inHunk=false; continue; }
+    if(l.startsWith('---')||l.startsWith('+++')) continue;
+    if(!inHunk) continue;
+    const isDel = l.startsWith('-'), isAdd = l.startsWith('+');
+    const raw = (isDel||isAdd) ? l.slice(1) : (l.startsWith(' ') ? l.slice(1) : l);
+    updCtx(raw);
+    const trimmed = raw.trim();
+    if((isAdd||isDel) && trimmed==='{'){
+      // собрать весь добавленный/удалённый блок, проверить наличие blk
+      let depth=1, j=i+1, buf=[raw];
+      while(j<lines.length && depth>0){
+        const nl = lines[j];
+        const nraw = (nl.startsWith('+')||nl.startsWith('-')) ? nl.slice(1) : (nl.startsWith(' ') ? nl.slice(1) : nl);
+        buf.push(nraw);
+        depth += (nraw.match(/\{/g)||[]).length - (nraw.match(/\}/g)||[]).length;
+        j++;
+      }
+      const text = buf.join('\n');
+      if(/"blk"\s*:/.test(text)){
+        const bm = text.match(/"blk"\s*:\s*"([^"]*)"/);
+        const tm = text.match(/"trigger"\s*:\s*"([^"]*)"/);
+        recs.push({type: isAdd?'weaponAdd':'weaponDel', bomb: bm?bm[1]:null, trigger: tm?tm[1]:null, ctx:Object.assign({},ctx)});
+      }
+      i = j-1;
+      continue;
+    }
+    if(isAdd){
+      const kv = keyVal(raw);
+      if(pendingDel && kv && pendingDel.kv && pendingDel.kv.key===kv.key){
+        recs.push({type:'value', key:kv.key, oldV:pendingDel.kv.val, newV:kv.val, ctx:Object.assign({},ctx)});
+        pendingDel=null;
+      } else {
+        recs.push({type:'add', key:kv?kv.key:null, val:kv?kv.val:null, ctx:Object.assign({},ctx)});
+      }
+      continue;
+    }
+    if(isDel){ pendingDel={kv:keyVal(raw)}; continue; }
+    flushDel();
+  }
+  flushDel();
+  // классификация
+  const bombType = (ctx)=>{
+    const trig = (ctx.trigger||'').toLowerCase();
+    const blk = (ctx.blk||'').toLowerCase();
+    if(trig==='bombs' || /bomb/.test(blk)) return 'bombs';
+    if(trig==='rockets' || trig==='missiles' || /rocket|missile/.test(blk)) return 'rockets';
+    return 'other';
+  };
+  const PHRASE_ADD = { bombs:'бомбы теперь сбрасываются по одной', rockets:'теперь пускаются по одной', other:'теперь сбрасываются по одной' };
+  const PHRASE_DEL = { bombs:'бомбы больше не сбрасываются по одной', rockets:'больше не пускаются по одной', other:'больше не сбрасываются по одной' };
+  const linesOut = [];
+  const sepCount = new Map(); // bombPath → {n, type}
+  const sepAdd = (ctx)=>{
+    const t = bombType(ctx);
+    const e = sepCount.get(ctx.blk) || {n:0, type:t};
+    e.n++; sepCount.set(ctx.blk, e);
+  };
+  recs.forEach(r=>{
+    if(r.type==='value' && r.key==='separate'){
+      if(r.newV==='true'){ sepAdd(r.ctx); return; }
+      if(r.oldV==='true'){ linesOut.push(`${prettifyBombPath(r.ctx.blk)}: ${PHRASE_DEL[bombType(r.ctx)]}`); return; }
+    }
+    if(r.type==='add' && r.key==='separate' && r.val==='true'){ sepAdd(r.ctx); return; }
+    if(r.type==='del' && r.key==='separate' && r.val==='true'){
+      linesOut.push(`${prettifyBombPath(r.ctx.blk)}: ${PHRASE_DEL[bombType(r.ctx)]}`); return;
+    }
+    if(r.type==='value' && r.key==='bullets'){
+      if(r.oldV!==r.newV) linesOut.push(`${prettifyBombPath(r.ctx.blk)}: боезапас ${r.oldV} → ${r.newV}`);
+      return;
+    }
+    if(r.type==='value' && r.key==='blk'){
+      linesOut.push(`заменено оружие: ${prettifyBombPath(r.oldV)} → ${prettifyBombPath(r.newV)}`); return;
+    }
+    if(r.type==='value' && r.key==='trigger'){
+      linesOut.push(`${prettifyBombPath(r.ctx.blk)}: триггер ${r.oldV} → ${r.newV}`); return;
+    }
+    if(r.type==='weaponAdd'){ linesOut.push(`добавлена подвеска: ${prettifyBombPath(r.bomb)}`); return; }
+    if(r.type==='weaponDel'){ linesOut.push(`убрана подвеска: ${prettifyBombPath(r.bomb)}`); return; }
+  });
+  sepCount.forEach((e,bomb)=>{
+    linesOut.unshift(`${e.n}x ${prettifyBombPath(bomb)}: ${PHRASE_ADD[e.type]}`);
+  });
+  return {lines: linesOut};
+}
+
+// ===== Миссии =====
+const UNIT_CAT = [
+  [/ammo/i, ['склад боеприпасов','склады боеприпасов']],
+  [/assembly_area|assembly/i, ['сборочная площадка','сборочные площадки']],
+  [/stronghold/i, ['опорный пункт','опорные пункты']],
+  [/mlrs/i, ['РСЗО','РСЗО']],
+  [/aew|awacs/i, ['РЛС ДРЛО','РЛС ДРЛО']],
+  [/radar/i, ['РЛС','РЛС']],
+  [/aircraftcarrier|carrier/i, ['авианосец','авианосцы']],
+  [/destroyer/i, ['эсминец','эсминцы']],
+  [/cruiser/i, ['крейсер','крейсеры']],
+  [/battleship/i, ['линкор','линкоры']],
+  [/submarine/i, ['подлодка','подлодки']],
+  [/anti_aircraft|spaa|aa_gun/i, ['ЗСУ','ЗСУ']],
+  [/artillery|howitzer|self_propelled/i, ['САУ','САУ']],
+  [/tank_destroyer/i, ['ПТ-САУ','ПТ-САУ']],
+  [/light_tank/i, ['лёгкий танк','лёгкие танки']],
+  [/medium_tank/i, ['средний танк','средние танки']],
+  [/heavy_tank/i, ['тяжёлый танк','тяжёлые танки']],
+  [/helicopter/i, ['вертолёт','вертолёты']],
+  [/bomber/i, ['бомбардировщик','бомбардировщики']],
+  [/attacker|assault/i, ['штурмовик','штурмовики']],
+  [/fighter/i, ['истребитель','истребители']],
+  [/recon/i, ['разведчик','разведчики']],
+  [/ifv/i, ['БМП','БМП']],
+  [/apc/i, ['БТР','БТР']],
+  [/truck/i, ['грузовик','грузовики']],
+  [/bunker/i, ['бункер','бункеры']],
+  [/tank/i, ['танк','танки']],
+];
+const UNIT_ABBR = { mlrs:'MLRS', aew:'AAEW', aa:'AA', apc:'APC', ifv:'IFV', mbt:'MBT', spaa:'SPAA', rha:'RHA', era:'ERA', heat:'HEAT', ap:'AP', he:'HE', tps:'TPS', sam:'SAM', aam:'AAM', agm:'AGM', atgm:'ATGM', radar:'РЛС', gps:'GPS', ircm:'IRCM', smerch:'«Смерч»' };
+// токены-названия категории, которые не нужны в имени (категория уже в тексте)
+const UNIT_NAME_DROP = [
+  [/aew|awacs|radar/i, ['aew','awacs','radar']],
+  [/mlrs/i, ['mlrs']],
+  [/ammo/i, ['ammo','storage','factory','depot']],
+  [/assembly/i, ['assembly','area']],
+  [/stronghold/i, ['stronghold']],
+  [/aircraftcarrier|carrier/i, ['aircraftcarrier','carrier']],
+  [/destroyer/i, ['destroyer']],
+  [/cruiser/i, ['cruiser']],
+  [/battleship/i, ['battleship']],
+  [/submarine/i, ['submarine']],
+  [/anti_aircraft|spaa/i, ['anti_aircraft','spaa','aa_gun']],
+  [/artillery|howitzer/i, ['artillery','howitzer','self_propelled']],
+];
+function decodeUnitClass(cls){
+  const s = String(cls||'');
+  let cat = null;
+  for(const [rx, forms] of UNIT_CAT){ if(rx.test(s)){ cat = forms; break; } }
+  let name = s.replace(/^(us|uk|ger|jp|ussr|fr|it|cn|nt|ai)_/i,'').replace(/^(us|uk|ger|jp|ussr|fr|it|cn|nt|ai)_/i,'').replace(/_ai$/i,'');
+  const allToks = name.split('_').filter(Boolean);
+  let rawToks = allToks;
+  if(cat){
+    for(const [rx, drop] of UNIT_NAME_DROP){
+      if(rx.test(s)){ rawToks = rawToks.filter(t=>!drop.includes(t.toLowerCase())); break; }
+    }
+  }
+  if(!rawToks.length) rawToks = allToks; // не осталось имён после чистки — берём как есть
+  const toks = rawToks.map(t=>{
+    const low = t.toLowerCase();
+    if(UNIT_ABBR[low]) return UNIT_ABBR[low];
+    if(/^\d/.test(low)) return low.toUpperCase();
+    return low.charAt(0).toUpperCase()+low.slice(1);
+  });
+  const out = [];
+  for(const t of toks){
+    const prev = out[out.length-1];
+    if(prev && /\d$/.test(prev) && /^\d+$/.test(t) && prev.length<=6) out[out.length-1] = prev+'-'+t;
+    else out.push(t);
+  }
+  return { name: out.join(' '), cat: cat ? cat[0] : null, catPl: cat ? cat[1] : null };
+}
+function missionLabel(path){
+  const seg = String(path).split('/');
+  const mi = seg.indexOf('missions');
+  if(mi<0) return null;
+  const mode = seg[mi+3] || '';
+  let map = '';
+  if(String(path).includes('/carriers/')){
+    const ci = seg.indexOf('carriers');
+    map = seg[ci-1] || '';
+  } else {
+    let fn = seg[seg.length-1].replace(/\.blkx?$/i,'');
+    fn = fn.replace(/^air_/i,'');
+    if(mode) fn = fn.replace(new RegExp('_'+mode+'_.*$','i'),'');
+    map = fn;
+  }
+  map = map.replace(/^air_/i,'').replace(/_/g,' ').trim();
+  let mapName = map.split(' ').filter(Boolean).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+  mapName = mapName.replace(/South Eastern/g,'Southeastern').replace(/North Eastern/g,'Northeastern');
+  if(!mapName) return null;
+  const prefix = mode==='historical' ? '[Operation]' : '['+mode.split('_').filter(Boolean).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ')+']';
+  return {prefix, map: mapName, label: prefix+' '+mapName, mode};
+}
+function analyzeMissionPatch(path, patch){
+  const ml = missionLabel(path);
+  if(!ml) return null;
+  const hunks = [];
+  let cur = null;
+  for(const l of String(patch||'').split('\n')){
+    if(l.startsWith('@@')){ if(cur) hunks.push(cur); cur=[l]; continue; }
+    if(l.startsWith('diff ')){ if(cur) hunks.push(cur); cur=null; continue; }
+    if(cur) cur.push(l);
+  }
+  if(cur) hunks.push(cur);
+  const isPosChange = (l)=>/^[+-]\s*-?\d+(\.\d+)?\s*,?\s*$/.test(l);
+  const out = [];
+  if(String(path).includes('/carriers/')){
+    let posCount = 0;
+    hunks.forEach(h=>h.forEach(l=>{ if(isPosChange(l)) posCount++; }));
+    out.push(posCount>10 ? 'изменены позиции и маршруты авианосцев и их эскорта' : 'изменён состав юнитов авианосной группы');
+    return {label: ml.label, lines: out};
+  }
+  const movedCats = new Set();
+  hunks.forEach(h=>{
+    // «перемещение» = пары -/+ у координат; чистое добавление юнита — не перемещение
+    const addNums = h.filter(l=>/^\+\s*-?\d+(\.\d+)?\s*,?\s*$/.test(l)).length;
+    // удалённая строка с числом (но не "---" заголовок diff)
+    const hasDelNums = h.some(l=>l.startsWith('-') && !l.startsWith('---') && /^\s*-?\d+(\.\d+)?\s*,?\s*$/.test(l.slice(1)));
+    if(hasDelNums && addNums>0){
+      h.forEach(l=>{
+        const m = l.match(/"unit_class"\s*:\s*"([^"]+)"/);
+        if(m){ const d = decodeUnitClass(m[1]); if(d.catPl) movedCats.add(d.catPl); }
+      });
+    }
+  });
+  const addedCls = new Map(), removedCls = new Map(); // class → decode
+  hunks.forEach(h=>h.forEach(l=>{
+    const m = l.match(/^([+-])\s*"unit_class"\s*:\s*"([^"]+)"/);
+    if(!m) return;
+    const d = decodeUnitClass(m[2]);
+    (m[1]==='+' ? addedCls : removedCls).set(m[2], d);
+  }));
+  // классы, одновременно добавленные и удалённые, на самом деле перемещены/перерасставлены
+  addedCls.forEach((d, cls)=>{
+    if(removedCls.has(cls)){
+      if(d.catPl) movedCats.add(d.catPl);
+      addedCls.delete(cls); removedCls.delete(cls);
+    }
+  });
+  if(movedCats.size) out.push(`перемещены: ${[...movedCats].join(', ')}`);
+  const groupByCat = (clsMap)=>{
+    const byCat = new Map();
+    clsMap.forEach(d=>{
+      const cat = d.catPl || 'юниты';
+      if(!byCat.has(cat)) byCat.set(cat, []);
+      if(d.name && !byCat.get(cat).includes(d.name)) byCat.get(cat).push(d.name);
+    });
+    return byCat;
+  };
+  const addedCats = groupByCat(addedCls), removedCats = groupByCat(removedCls);
+  if(addedCats.size){
+    const parts = [...addedCats.entries()].map(([cat,names])=> names.length>2 ? `${cat} (${names.slice(0,2).join(', ')} и др.)` : `${cat} (${names.join(', ')})`);
+    out.push(`добавлены: ${parts.join(', ')}`);
+  }
+  if(removedCats.size){
+    const parts = [...removedCats.entries()].map(([cat,names])=> `${cat} (${names.slice(0,3).join(', ')})`);
+    out.push(`убраны: ${parts.join(', ')}`);
+  }
+  if(!out.length) out.push('изменена расстановка юнитов на карте');
+  return {label: ml.label, lines: out};
+}
+
+// ===== Сборка changelog: группировка одинаковых изменений =====
+function buildChangelog(rep){
+  const byEntity = new Map();
+  const addLines = (kind, entity, label, lines, classes)=>{
+    if(!entity || !lines || !lines.length) return;
+    if(!byEntity.has(entity)) byEntity.set(entity, {kind, entity, label, lines:[], classes:[]});
+    const e = byEntity.get(entity);
+    lines.forEach(l=>{ if(!e.lines.includes(l)) e.lines.push(l); });
+    (classes||[]).forEach(c=>{ if(!e.classes.includes(c)) e.classes.push(c); });
+  };
+  const list = (typeof files!=='undefined' && Array.isArray(files)) ? files : [];
+  const addedList = list.filter(f=>f.status==='added');
+
+  // 1) Загрузка (weaponpresets)
+  list.filter(f=>f.status==='modified' && /weaponpresets\//.test(f.filename) && f.patch).forEach(f=>{
+    const ac = prettifyAircraftFromPreset(f.filename.split('/').pop());
+    const res = analyzeWeaponPresetPatch(f.patch);
+    if(res && res.lines.length) addLines('loadout', ac, 'изменения загрузки', res.lines);
+  });
+
+  // 2) Классы брони
+  const armorFile = list.find(f=>f.status==='modified' && /damage_model\/armor_classes\.blkx?$/.test(f.filename) && f.patch);
+  if(armorFile){
+    const classes = analyzeArmorClassesPatch(armorFile.patch);
+    const byChange = new Map();
+    classes.forEach(c=>{
+      const key = c.matKey+'|'+(c.thickness||'')+'|'+c.lines.join(' ');
+      if(!byChange.has(key)) byChange.set(key, {material:c.material, thickness:c.thickness, parts:[], lines:c.lines, classes:[]});
+      const g = byChange.get(key);
+      if(c.part && !g.parts.includes(c.part)) g.parts.push(c.part);
+      g.classes.push(c.name);
+    });
+    byChange.forEach(g=>{
+      const entity = g.thickness ? `${g.thickness} мм ${g.material}` : g.material;
+      addLines('armor', entity, g.parts.join(', '), g.lines, g.classes);
+    });
+  }
+
+  // 3) Миссии
+  list.filter(f=>/mis\.vromfs\.bin_u\/.*missions\//.test(f.filename) && f.patch).forEach(f=>{
+    const m = analyzeMissionPatch(f.filename, f.patch);
+    if(m && m.lines.length) addLines('mission', m.label, '', m.lines);
+  });
+  // зеркальные версии карт
+  addedList.forEach(f=>{
+    if(/_mirror_/.test(f.filename)){
+      const base = f.filename.replace(/_mirror_/, '_');
+      if(list.some(x=>x.filename===base && x.status==='modified')){
+        const ml = missionLabel(base);
+        if(ml) addLines('mission', ml.label, '', ['добавлена зеркальная версия карты']);
+      }
+    }
+  });
+
+  // 4) Прочие значимые изменения (баффы/нерфы) — группируем одинаковые по юнитам
+  list.filter(f=>f.status==='modified' && f.patch && !/weaponpresets\//.test(f.filename) && !/missions\//.test(f.filename) && !/armor_classes/.test(f.filename)).forEach(f=>{
+    const an = analyzeFile(f);
+    if(an.verdict!=='change' && an.changes.length){
+      const nm = prettifyName(f.short_path.split('/').pop());
+      addLines('generic', nm, '', an.changes.slice(0,5).map(d=>d.text));
+    }
+  });
+
+  // фаза 2: слияние записей с одинаковым текстом изменений (один bullet на много юнитов)
+  const merged = new Map();
+  byEntity.forEach(e=>{
+    const key = e.kind+'|'+e.label+'|'+e.lines.join(' ');
+    if(!merged.has(key)) merged.set(key, {kind:e.kind, entities:[], label:e.label, lines:e.lines, classes:[]});
+    const g = merged.get(key);
+    if(!g.entities.includes(e.entity)) g.entities.push(e.entity);
+    e.classes.forEach(c=>{ if(!g.classes.includes(c)) g.classes.push(c); });
+  });
+  const order = {loadout:0, armor:1, mission:2, generic:3};
+  return [...merged.values()].sort((a,b)=> ((order[a.kind]??9)-(order[b.kind]??9)) || (b.entities.length-a.entities.length));
+}
+
+// ===== Рендер changelog =====
+// список сущностей: если у всех одинаковый префикс "[Operation] " — печатать его один раз
+function joinEntities(entities, cap){
+  cap = cap||15;
+  const list = entities.slice(0, cap);
+  const more = entities.length - list.length;
+  let out;
+  const m = list.length && list[0].match(/^(\[[^\]]+\])\s/);
+  if(m && list.every(e=>e.startsWith(m[1]+' '))){
+    out = [list[0], ...list.slice(1).map(e=>e.slice(m[1].length+1))].join(', ');
+  } else {
+    out = list.join(', ');
+  }
+  return more>0 ? out+` и ещё ${more}` : out;
+}
+function renderChangelogHtml(entries){
+  if(!entries || !entries.length) return '';
+  let h = '<div class="rep-section"><div class="rep-sec-title">🗒️ Changelog <span class="cnt">структурированный авто-анализ</span></div><ul class="cl">';
+  entries.forEach(e=>{
+    const ents = joinEntities(e.entities, 15);
+    h += `<li><span class="cl-entity">${escHtml(ents)}</span><ul>`;
+    if(e.label) h += `<li><span class="cl-label">${escHtml(e.label)}:</span><ul>`;
+    else h += '<li><ul>';
+    h += e.lines.slice(0,20).map(l=>`<li>${escHtml(l)}</li>`).join('');
+    if(e.lines.length>20) h += `<li class="cl-more">… ещё ${e.lines.length-20}</li>`;
+    h += '</ul></li>';
+    if(e.kind==='armor' && e.classes && e.classes.length){
+      h += `<li><button class="rbtn cl-find" data-classes="${escHtml(e.classes.join(' '))}">🔍 Найти затронутые самолёты</button><div class="cl-users" style="display:none"></div></li>`;
+    }
+    h += '</ul></li>';
+  });
+  h += '</ul></div>';
+  return h;
+}
+function changelogMarkdown(entries){
+  if(!entries || !entries.length) return '';
+  const L = ['## 🗒️ Changelog (структурированный авто-анализ)', ''];
+  entries.forEach(e=>{
+    const ents = joinEntities(e.entities, 15);
+    L.push(`- **${ents}**`);
+    if(e.label) L.push(`  - ${e.label}:`);
+    e.lines.slice(0,25).forEach(l=>L.push(`    - ${l}`));
+    if(e.lines.length>25) L.push(`    - … ещё ${e.lines.length-25}`);
+  });
+  L.push('');
+  return L.join('\n');
+}
+// ===== SEMANTIC END =====
+
+
 // Wiring - FIXED: теперь можно выбирать любые версии, + ручной ввод
 document.getElementById('baseSelect').onclick=(e)=>{
   e.preventDefault(); e.stopPropagation();
@@ -835,13 +2125,23 @@ document.getElementById('resetFilters').onclick=()=>{
   showToast('Фильтры сброшены — показано всё');
 };
 document.getElementById('tabs').onclick=e=>{
-  if(e.target.dataset.tab){
-    document.querySelectorAll('#tabs div').forEach(d=>d.classList.remove('active'));
-    e.target.classList.add('active');
-    activeTab=e.target.dataset.tab;
+  if(e.target.dataset.tab) switchTab(e.target.dataset.tab);
+};
+function switchTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('#tabs div').forEach(d=>d.classList.toggle('active', d.dataset.tab===tab));
+  const grid=document.querySelector('.compare-grid');
+  const panel=document.getElementById('reportPanel');
+  if(tab==='report'){
+    if(grid) grid.style.display='none';
+    panel.classList.add('open');
+    renderReport();
+  } else {
+    if(grid) grid.style.display='flex';
+    panel.classList.remove('open');
     renderPreview();
   }
-};
+}
 document.getElementById('autoCheck').onchange=e=>{
   autoEnabled=e.target.checked;
   document.getElementById('autoState').textContent=autoEnabled?'ВКЛ':'ВЫКЛ';
@@ -869,6 +2169,80 @@ document.getElementById('openRaw').onclick=()=>{
 };
 document.getElementById('downloadJsonBtn').onclick=downloadJson;
 document.getElementById('downloadBtn').onclick=downloadJson;
+
+// ===== Готовый отчёт: рендер и экспорт =====
+function renderReport(){
+  const wrap=document.getElementById('reportWrap');
+  if(!wrap) return;
+  if(!reportData){
+    wrap.innerHTML=`<div class="rep-empty">Сначала сравни две версии — отчёт сформируется автоматически 🤖</div>`;
+    return;
+  }
+  wrap.innerHTML=buildReportHtml(reportData);
+}
+function gotoReport(){
+  if(!reportData){ showToast('Сначала сравни версии — отчёт появится автоматически'); return; }
+  switchTab('report');
+}
+document.getElementById('reportBtn').onclick=gotoReport;
+document.getElementById('gotoReport').onclick=gotoReport;
+document.getElementById('repCopyBtn').onclick=()=>{
+  if(!reportData){ showToast('Нет отчёта — сначала сравни версии'); return; }
+  navigator.clipboard.writeText(buildMarkdown(reportData)).then(()=>showToast('Отчёт скопирован в буфер (текст/Markdown)'));
+};
+document.getElementById('repMdBtn').onclick=()=>{
+  if(!reportData){ showToast('Нет отчёта — сначала сравни версии'); return; }
+  const blob=new Blob([buildMarkdown(reportData)],{type:'text/markdown;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`wt_report_${reportData.base}_vs_${reportData.cmp}.md`; a.click();
+  showToast('Markdown-отчёт скачан');
+};
+document.getElementById('repHtmlBtn').onclick=()=>{
+  if(!reportData){ showToast('Нет отчёта — сначала сравни версии'); return; }
+  const blob=new Blob([buildStandaloneHtml(reportData)],{type:'text/html;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`wt_report_${reportData.base}_vs_${reportData.cmp}.html`; a.click();
+  showToast('HTML-отчёт скачан (standalone)');
+};
+document.getElementById('repPrintBtn').onclick=()=>{
+  if(!reportData){ showToast('Нет отчёта — сначала сравни версии'); return; }
+  if(activeTab!=='report') switchTab('report');
+  setTimeout(()=>window.print(), 150);
+};
+// Кнопка «Найти затронутые самолёты» в changelog (code search по классам брони, нужен токен)
+document.addEventListener('click', async (e)=>{
+  const btn = e.target.closest ? e.target.closest('.cl-find') : null;
+  if(!btn) return;
+  const classes = (btn.dataset.classes||'').split(' ').filter(Boolean);
+  const box = btn.parentElement.querySelector('.cl-users');
+  if(!classes.length || !box) return;
+  const t = token();
+  if(!t){ showToast('Нужен GitHub токен (кнопка 🔑) для поиска по репозиторию'); return; }
+  btn.disabled = true; btn.textContent = '⏳ Ищу…';
+  box.style.display='block';
+  box.textContent = 'Ищу самолёты с этой бронёй…';
+  try{
+    const found = new Set();
+    for(const cls of classes.slice(0,6)){
+      const r = await fetch(`https://api.github.com/search/code?q=${encodeURIComponent('"'+cls+'"')}+repo:gszabi99/War-Thunder-Datamine&per_page=100`, {headers:{'Accept':'application/vnd.github+json','Authorization':'token '+t}});
+      if(r.status===403) throw new Error('лимит GitHub или нет доступа к поиску — проверь токен');
+      if(!r.ok) throw new Error('GitHub '+r.status);
+      const data = await r.json();
+      (data.items||[]).forEach(it=>{
+        const p = it.path||'';
+        if(!/gamedata\/flightmodels\/[^/]+\.blkx?$/.test(p)) return; // только FM-файлы самолётов
+        found.add(prettifyName(p.split('/').pop()));
+      });
+    }
+    const arr = [...found];
+    box.textContent = arr.length
+      ? `Затронуто самолётов: ${arr.length} — ${arr.slice(0,60).join(', ')}${arr.length>60?' …':''}`
+      : 'Самолёты не найдены (класс может использоваться в юнит-файлах наземки/флота)';
+  }catch(err){
+    box.textContent = 'Ошибка: '+err.message;
+  }
+  btn.textContent = '🔍 Найти затронутые самолёты'; btn.disabled = false;
+});
 function downloadJson(){
   if(!files.length){ showToast('Сначала сравни версии'); return; }
   const data={ base:baseVersion.id, compare:cmpVersion.id, generated:new Date().toISOString(), stats:{added:files.filter(f=>f.status==='added').length, modified:files.filter(f=>f.status==='modified').length, deleted:files.filter(f=>f.status==='deleted').length, total:files.length}, files };
