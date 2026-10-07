@@ -206,11 +206,25 @@ def categorize(path, ext):
 
 NAME_FIX = {'mig':'MiG','su':'Su','yak':'Yak','la':'La','il':'Il','tu':'Tu','pe':'Pe','f':'F','a':'A','p':'P','t':'T','bf':'Bf','fw':'Fw','me':'Me','he':'He','ki':'Ki','h':'H','b':'B','i':'I','pz':'Pz','kv':'КВ','is':'ИС','bmp':'БМП','bmd':'БМД','t34':'T-34','t54':'T-54','t55':'T-55','t62':'T-62','t64':'T-64','t72':'T-72','t80':'T-80','t90':'T-90','leo':'Leo','type':'Type','amx':'AMX','cv':'CV','oto':'OTO','ztz':'ZTZ','pl':'PL'}
 def prettify_name(base):
-    """mig_35.blk → MiG-35, f_4e_phantom.blk → F-4E Phantom"""
-    t = re.sub(r'\.(blk[cs]?|dds|png|jpe?g|webp|tga|svg)$', '', str(base), flags=re.I).replace('_', ' ').strip()
+    """mig_35.blk → MiG-35, f_4e_phantom.blk → F-4E Phantom, tempest_mkv → Tempest Mk. V"""
+    t = re.sub(r'\.(blk[csx]?|dds|png|jpe?g|webp|tga|svg)$', '', str(base), flags=re.I).replace('_', ' ').replace('-', ' ').strip()
     if not t:
         return str(base)
-    toks = [NAME_FIX.get(tok.lower(), tok[:1].upper() + tok[1:]) for tok in t.split()]
+    toks = []
+    for tok in t.split():
+        low = tok.lower()
+        if low in NAME_FIX:
+            toks.append(NAME_FIX[low]); continue
+        m = re.match(r'^mk(\d+|[ivx]+)([a-z]?)$', low)
+        if m:
+            v = m.group(1)
+            v = ROMAN2AR.get(v, v) if re.fullmatch(r'[ivx]+', v) else v
+            toks.append('Mk. ' + v + (m.group(2).upper() if m.group(2) else '')); continue
+        m = re.match(r'^fb(\d+)$', low)
+        if m: toks.append('F.B. ' + m.group(1)); continue
+        m = re.match(r'^fz(\d+)$', low)
+        if m: toks.append('Fz. ' + m.group(1)); continue
+        toks.append(tok[:1].upper() + tok[1:])
     out = []
     for tok in toks:
         prev = out[-1] if out else None
@@ -283,7 +297,7 @@ def parse_patch(patch_text):
         elif p['kind'] == 'block':
             base.update(kind='delBlock' if direction == 'del' else 'addBlock', key=p['key'])
         else:
-            base.update(kind='delRaw' if direction == 'del' else 'addRaw', raw=p['raw'])
+            base.update(kind='delRaw' if direction == 'del' else 'addRaw', raw=p.get('raw', p.get('key', '')))
         return base
 
     def make_change(del_line, add_line):
@@ -439,7 +453,7 @@ def analyze_files(files, base_name, cmp_name):
     for f in added:
         cat = categorize(f['filename'], f.get('ext', ''))
         rep['addedFiles'].append({'file': f, 'cat': cat})
-        if cat['id'] in UNIT_CAT_IDS and re.search(r'\.blk[cs]?$', f['filename'], re.I):
+        if cat['id'] in UNIT_CAT_IDS and re.search(r'\.blk[csx]?$', f['filename'], re.I):
             nm = prettify_name(f['short_path'].split('/')[-1])
             info = added_file_info(f)
             rep['highlights'].append({'ico': '🆕', 'text': f"Новый юнит/FM: {nm}" + (f" — {', '.join(info)}" if info else ''), 'file': f['filename']})
@@ -449,7 +463,7 @@ def analyze_files(files, base_name, cmp_name):
     for f in deleted:
         cat = categorize(f['filename'], f.get('ext', ''))
         rep['deletedFiles'].append({'file': f, 'cat': cat})
-        if cat['id'] in UNIT_CAT_IDS and re.search(r'\.blk[cs]?$', f['filename'], re.I):
+        if cat['id'] in UNIT_CAT_IDS and re.search(r'\.blk[csx]?$', f['filename'], re.I):
             rep['highlights'].append({'ico': '🗑️', 'text': f"Удалён юнит/FM: {prettify_name(f['short_path'].split('/')[-1])}", 'file': f['filename']})
 
     for f in modified:
@@ -480,7 +494,589 @@ def analyze_files(files, base_name, cmp_name):
 
 VERDICT_LABEL = {'buff': '⬆️ бафф', 'nerf': '⬇️ нерф', 'change': '🔧 изменение'}
 
-def build_markdown(rep):
+# =====================================================================
+# 🗒️ CHANGELOG — семантический анализ (порт движка из приложения)
+# Структурированный вывод как в патчноутах: юнит → тип изменения → детали,
+# с группировкой одинаковых изменений (один пункт на много юнитов/карт).
+# =====================================================================
+COUNTRY_PREFIX = re.compile(r'^(uk|us|usa|ger|jp|ussr|fr|it|cn|sw|cz|pl|nl|fi|hu|ro|br|is|ko|au|ca)_', re.I)
+BOMB_ABBR = {'mc':'M.C.', 'gp':'G.P.', 'sap':'S.A.P.', 'he':'H.E.', 'ap':'A.P.', 'apc':'A.P.C.', 'apcbc':'A.P.C.B.C.', 'apds':'A.P.D.S.', 'apcr':'A.P.C.R.', 'hvap':'H.V.A.P.', 'heat':'H.E.A.T.', 'heatfs':'H.E.A.T.-FS.', 'aphe':'A.P.H.E.', 'hefi':'H.E.F.I.', 'heiat':'H.E.I.A.T.', 'at':'A.T.', 'aa':'A.A.', 'frag':'Frag.', 'inc':'Inc.', 'apit':'A.P.I.T.'}
+ROMAN = {'1':'I','2':'II','3':'III','4':'IV','5':'V','6':'VI','7':'VII','8':'VIII','9':'IX','10':'X','11':'XI','12':'XII'}
+ROMAN2AR = {'i':'1','ii':'2','iii':'3','iv':'4','v':'5','vi':'6','vii':'7','viii':'8','ix':'9','x':'10'}
+BOMB_NUM = {'50lb':'50 lb','100lb':'100 lb','250lb':'250 lb','500lb':'500 lb','500lbs':'500 lb','1000lb':'1000 lb','1000lbs':'1000 lb','2000lb':'2000 lb','4000lb':'4000 lb','50kg':'50 kg','100kg':'100 kg','250kg':'250 kg','500kg':'500 kg','1000kg':'1000 kg','1500kg':'1500 kg','3000kg':'3000 kg'}
+BOMB_DROP_SUFFIX = re.compile(r'_(bomb|bombs|gun|guns|rocket|rockets|missile|missiles|torpedo|torpedoes|mine|mines|default|ap|long_tail|short_tail|with_tracer|tracer|practice|thin_wall|naval)$', re.I)
+
+def prettify_bomb_path(p):
+    """gameData/Weapons/BombGuns/uk_500lb_mc_mk1_mk4_long_tail_bomb.blk → '500 lb M.C. Mk. I'"""
+    s = str(p or '').replace('\\', '/')
+    s = s.split('/')[-1] or s
+    s = re.sub(r'\.(blk|blkx)$', '', s, flags=re.I)
+    s = COUNTRY_PREFIX.sub('', s)
+    while BOMB_DROP_SUFFIX.search(s):
+        s = BOMB_DROP_SUFFIX.sub('', s)
+    out, mk_seen = [], 0
+    for t in [x for x in s.split('_') if x]:
+        low = t.lower()
+        if low in BOMB_NUM: out.append(BOMB_NUM[low]); continue
+        if low in BOMB_ABBR: out.append(BOMB_ABBR[low]); continue
+        m = re.match(r'^mk(\d+|[ivx]+)$', low)
+        if m:
+            r = m.group(1)
+            r = ROMAN.get(r, r) if r.isdigit() else r.upper()
+            mk_seen += 1
+            if mk_seen == 1: out.append('Mk. ' + r)
+            continue
+        m = re.match(r'^an/?m(\d+[a-z]?\d*)$', low)
+        if m: out.append('AN/M' + m.group(1).upper()); continue
+        out.append(t)
+    dedup = []
+    for t in out:
+        if not dedup or dedup[-1] != t: dedup.append(t)
+    return ' '.join(dedup) or s
+
+PRESET_STOP = {'bombs','bomb','guns','gun','rockets','rocket','torpedoes','torpedo','mines','mine','smoke','smokes','flares','flare','chaff','countermeasures','presets','preset','loadout','loadouts','fuel','drop','tanks','tank','pods','pod','aa','aam','agm','atgm','mc','gp','sap','he','ap','heat','2x','4x','6x','8x','12x','14x'}
+
+def _map_designation(tok):
+    low = str(tok).lower()
+    m = re.match(r'^mk(\d+|[ivx]+)([a-z]?)$', low)
+    if m:
+        v = m.group(1)
+        v = ROMAN2AR.get(v, v) if re.fullmatch(r'[ivx]+', v) else v
+        return 'Mk. ' + v + (m.group(2).upper() if m.group(2) else '')
+    m = re.match(r'^fb(\d+)$', low)
+    if m: return 'F.B. ' + m.group(1)
+    m = re.match(r'^fz(\d+)$', low)
+    if m: return 'Fz. ' + m.group(1)
+    return tok[:1].upper() + tok[1:]
+
+def prettify_aircraft_from_preset(fname):
+    """tempest_mkv_500lbs_mc_bombs.blkx → 'Tempest Mk. 5'"""
+    s = re.sub(r'\.blkx?$', '', str(fname or ''), flags=re.I)
+    toks = [t for t in s.split('_') if t]
+    ac = []
+    for t in toks:
+        low = t.lower()
+        if re.match(r'^(mk|fb|fz)', low): ac.append(t); continue
+        if low[0].isdigit(): break
+        if low in PRESET_STOP: break
+        if len(low) >= 5 and re.search(r'\d', low): break
+        ac.append(t)
+    if not ac and toks: ac.append(toks[0])
+    return ' '.join(_map_designation(t) for t in ac)
+
+ARMOR_MATERIAL = [
+    ('dural_nikel','дюралево-никелевый сплав'), ('boron_carbide','карбид бора'),
+    ('alum_alloy','алюминиевый сплав'), ('aluminum_armor','алюминиевая броня'), ('aluminium','алюминий'),
+    ('space_composite','композитная броня'), ('fireproof_composite','огнеупорный композит'),
+    ('tank_textolite','текстолит'), ('rubber_metal','резинометалл'), ('rubber_fabric','резиноткань'),
+    ('armour_aramide','арамидная ткань'), ('dural','дюралюминий'), ('steel','сталь'), ('glass','стекло'),
+    ('wood','дерево'), ('armor','броня'), ('kevlar','кевлар'), ('titan','титан'), ('composite','композит'),
+    ('ceramic','керамика'), ('plexiglas','плексиглас'), ('fibreglass','стеклопластик'), ('aramid','арамид'),
+    ('rubber','резина'), ('concrete','бетон'), ('brick','кирпич'), ('sand','песок'), ('graphite','графит'),
+    ('RHA','RHA'), ('CHA','CHA'), ('ERA','ERA'), ('spaced_armor','разнесённая броня'), ('grille','решётка'),
+]
+ARMOR_PART = {'tail':'хвостовое оперение','fin':'киль и стабилизаторы','fuse':'фюзеляж','wing':'крыло','elevator':'рули, элероны и закрылки','cover':'обшивка','engine':'двигатель','cockpit':'кабина','spar':'лонжерон','turret':'башня','hull':'корпус','barrel':'ствол','track':'гусеница','wheel':'колесо','driver':'место мехвода','gunner':'пулемёт','commander':'командир','pilot':'пилот','fuel':'топливная система','cooling':'система охлаждения','ammo':'боеприпасы','optics':'оптика','antenna':'антенна','tank':'танк','tanks':'танки','jet':'реактивный'}
+ARMOR_VARIANT_SKIP = {'na','nb','nbj','air','modern','light','heavy','s','m','l','mod','nbhl','screen','screens','fabric','vest','filing','shield','nb_2','c'}
+ARMOR_PARAMS = {
+    'explosionArmorQuality': {'name':'модификатор брони против фугасов','fmt':'pct'},
+    'shatterArmorQuality': {'name':'модификатор брони против осколков','fmt':'pct'},
+    'genericArmorQuality': {'name':'модификатор брони (общий)','fmt':'pct'},
+    'explosionDamageMult': {'name':'множитель фугасного урона','fmt':'pct'},
+    'shatterDamageMult': {'name':'множитель осколочного урона','fmt':'pct'},
+    'genericDamageMult': {'name':'множитель урона (общий)','fmt':'pct'},
+    'shatterEffectiveThicknessMax': {'name':'макс. эффективная толщина против осколков','fmt':'mmCap'},
+    'armorThickness': {'name':'толщина брони','fmt':'mm'},
+    'armorThrough': {'name':'пробитие брони','fmt':'mm'},
+    'ricochetAngle': {'name':'угол рикошета','fmt':'deg'},
+    'ricochetDamage': {'name':'урон при рикошете','fmt':'pct'},
+    'ricochetCosinePower': {'name':'степень косинуса рикошета','fmt':'num'},
+    'restrainDamage': {'name':'сдерживание урона','fmt':'pct'},
+    'oneSided': {'name':'односторонняя броня','fmt':'bool'},
+}
+
+def decode_armor_class(name):
+    s = str(name or '')
+    composite = False
+    if s.startswith('c_'):
+        composite = True; s = s[2:]
+    material = mat_key = None
+    for key, label in ARMOR_MATERIAL:
+        if s == key:
+            material, mat_key, s = label, key, ''; break
+        if s.startswith(key) and re.match(r'^[\d_]', s[len(key):]):
+            material, mat_key, s = label, key, s[len(key):]; break
+    if material is None:
+        pretty = ' '.join(t[:1].upper() + t[1:] for t in s.split('_') if t)
+        return {'material': pretty, 'matKey': s, 'thickness': None, 'part': '', 'label': pretty}
+    thickness = None
+    m = re.match(r'^(\d+(?:_\d+)?)', s)
+    if m:
+        thickness = m.group(1).replace('_', '.')
+        s = s[len(m.group(1)):]
+    parts = []
+    for t in [x for x in s.split('_') if x]:
+        low = t.lower()
+        if low in ARMOR_VARIANT_SKIP: continue
+        parts.append(ARMOR_PART.get(low, t))
+    label = ''
+    if thickness: label += f'{thickness} мм '
+    label += material
+    if parts: label += ', ' + ', '.join(parts)
+    if composite: label += ' (композит)'
+    return {'material': material, 'matKey': mat_key, 'thickness': thickness, 'part': ', '.join(parts), 'label': label}
+
+def _nf(v):
+    try: n = float(str(v).strip('"\''))
+    except ValueError: return str(v)
+    return str(int(n)) if n == int(n) else str(n)
+
+def _fmt_armor_val(key, v, pi):
+    if v is None: return '—'
+    try: n = float(str(v).strip('"\''))
+    except ValueError: return str(v)
+    fmt = pi['fmt'] if pi else None
+    if fmt == 'pct': return f'{round(n * 100)}%'
+    if fmt == 'mm': return f'{_nf(v)} мм'
+    if fmt == 'deg': return f'{_nf(v)}°'
+    if fmt == 'bool': return 'да' if n else 'нет'
+    return _nf(v)
+
+def analyze_armor_classes_patch(patch):
+    """Разбор patch файла armor_classes.blkx → изменения по классам брони"""
+    out, cur, in_hunk = [], None, False
+    def flush():
+        nonlocal cur
+        if not cur: return
+        cur['delParams'] += cur['pendingDels']; cur['pendingDels'] = []
+        by_key = {c['key']: c for c in cur['changes']}
+        for d in cur['delParams']:
+            by_key.setdefault(d['key'], {'key': d['key'], 'kind': 'del', 'oldV': d['val']})
+        for a in cur['addParams']:
+            by_key.setdefault(a['key'], {'key': a['key'], 'kind': 'add', 'newV': a['val']})
+        out.append({'name': cur['name'], 'added': cur['added'], 'removed': cur['removed'], 'changes': list(by_key.values())})
+        cur = None
+    for line in str(patch or '').split('\n'):
+        if line.startswith('@@'): in_hunk = True; continue
+        if line.startswith('diff ') or line.startswith('index '): flush(); in_hunk = False; continue
+        if line.startswith('---') or line.startswith('+++'): continue
+        if not in_hunk: continue
+        is_del, is_add = line.startswith('-'), line.startswith('+')
+        raw = line[1:] if (is_del or is_add) else (line[1:] if line.startswith(' ') else line)
+        trimmed = raw.strip()
+        m = re.match(r'^"([^"]+)"\s*:\s*\{$', trimmed)
+        if m:
+            flush()
+            cur = {'name': m.group(1), 'added': is_add, 'removed': is_del, 'changes': [], 'delParams': [], 'addParams': [], 'pendingDels': []}
+            continue
+        if not cur: continue
+        if trimmed in ('}', '},'): flush(); continue
+        kv = re.match(r'^\s*"([^"]+)"\s*:\s*(.*?)\s*,?\s*$', raw)
+        if not kv: continue
+        if is_add:
+            idx = next((i for i, d in enumerate(cur['pendingDels']) if d['key'] == kv.group(1)), None)
+            if idx is not None:
+                d = cur['pendingDels'].pop(idx)
+                cur['changes'].append({'key': kv.group(1), 'kind': 'value', 'oldV': d['val'], 'newV': kv.group(2)})
+            else:
+                cur['addParams'].append({'key': kv.group(1), 'val': kv.group(2)})
+            continue
+        if is_del:
+            cur['pendingDels'].append({'key': kv.group(1), 'val': kv.group(2)}); continue
+        cur['delParams'] += cur['pendingDels']; cur['pendingDels'] = []
+    flush()
+    res = []
+    for c in out:
+        dec = decode_armor_class(c['name'])
+        base = {'name': c['name'], 'matKey': dec['matKey'], 'material': dec['material'],
+                'thickness': dec['thickness'], 'part': dec['part'], 'label': dec['label']}
+        if c['removed']:
+            res.append(dict(base, removed=True, added=False, lines=[f"класс брони удалён: {dec['label']}"], changes=[])); continue
+        if c['added']:
+            res.append(dict(base, removed=False, added=True, lines=[f"класс брони добавлен: {dec['label']}"], changes=[])); continue
+        lines = []
+        for ch in c['changes']:
+            pi = ARMOR_PARAMS.get(ch['key'])
+            pname = pi['name'] if pi else ch['key']
+            if ch['kind'] == 'value':
+                if ch['oldV'] == ch['newV']: continue
+                if ch['key'] == 'shatterEffectiveThicknessMax':
+                    lines.append(f"макс. эффективная толщина против осколков: {_nf(ch['oldV'])} → {_nf(ch['newV'])} мм")
+                else:
+                    lines.append(f"{pname}: {_fmt_armor_val(ch['key'], ch['oldV'], pi)} → {_fmt_armor_val(ch['key'], ch['newV'], pi)}")
+            elif ch['kind'] == 'add':
+                if ch['key'] == 'shatterEffectiveThicknessMax':
+                    lines.append(f"макс. эффективная толщина против осколков теперь ограничена {_nf(ch['newV'])} мм")
+                else:
+                    lines.append(f"{pname}: добавлено {_fmt_armor_val(ch['key'], ch['newV'], pi)}")
+            else:
+                lines.append(f"{pname}: удалено (было {_fmt_armor_val(ch['key'], ch['oldV'], pi)})")
+        res.append(dict(base, removed=False, added=False, lines=lines, changes=c['changes']))
+    return res
+
+def analyze_weapon_preset_patch(patch):
+    """weaponpresets: 'separate': true у бомб → 'бомбы теперь сбрасываются по одной'"""
+    recs, ctx, pending, in_hunk = [], {'blk': None, 'trigger': None}, None, False
+    lines = str(patch or '').split('\n')
+    def upd(raw):
+        m = re.search(r'"blk"\s*:\s*"([^"]*)"', raw)
+        if m: ctx['blk'] = m.group(1)
+        m = re.search(r'"trigger"\s*:\s*"([^"]*)"', raw)
+        if m: ctx['trigger'] = m.group(1)
+    def kv(raw):
+        m = re.match(r'^\s*"([^"]+)"\s*:\s*(.*?)\s*,?\s*$', raw)
+        return (m.group(1), m.group(2)) if m else None
+    def flush_del():
+        nonlocal pending
+        if pending:
+            recs.append({'type': 'del', 'key': pending[0], 'val': pending[1], 'ctx': dict(ctx)})
+            pending = None
+    i = 0
+    while i < len(lines):
+        l = lines[i]
+        if l.startswith('@@'): flush_del(); in_hunk = True; i += 1; continue
+        if l.startswith('diff ') or l.startswith('index '): flush_del(); in_hunk = False; i += 1; continue
+        if l.startswith('---') or l.startswith('+++'): i += 1; continue
+        if not in_hunk: i += 1; continue
+        is_del, is_add = l.startswith('-'), l.startswith('+')
+        raw = l[1:] if (is_del or is_add) else (l[1:] if l.startswith(' ') else l)
+        upd(raw)
+        trimmed = raw.strip()
+        if (is_add or is_del) and trimmed == '{':
+            depth, j, buf = 1, i + 1, [raw]
+            while j < len(lines) and depth > 0:
+                nl = lines[j]
+                nraw = nl[1:] if (nl.startswith('+') or nl.startswith('-')) else (nl[1:] if nl.startswith(' ') else nl)
+                buf.append(nraw)
+                depth += nraw.count('{') - nraw.count('}')
+                j += 1
+            text = '\n'.join(buf)
+            if re.search(r'"blk"\s*:', text):
+                bm = re.search(r'"blk"\s*:\s*"([^"]*)"', text)
+                tm = re.search(r'"trigger"\s*:\s*"([^"]*)"', text)
+                recs.append({'type': 'weaponAdd' if is_add else 'weaponDel', 'bomb': bm.group(1) if bm else None,
+                             'trigger': tm.group(1) if tm else None, 'ctx': dict(ctx)})
+            i = j; continue
+        if is_add:
+            p = kv(raw)
+            if pending and p and pending[0] == p[0]:
+                recs.append({'type': 'value', 'key': p[0], 'oldV': pending[1], 'newV': p[1], 'ctx': dict(ctx)})
+                pending = None
+            else:
+                recs.append({'type': 'add', 'key': p[0] if p else None, 'val': p[1] if p else None, 'ctx': dict(ctx)})
+            i += 1; continue
+        if is_del:
+            p = kv(raw)
+            pending = p; i += 1; continue
+        flush_del(); i += 1
+    flush_del()
+    def bomb_type(c):
+        trig = (c.get('trigger') or '').lower(); blk = (c.get('blk') or '').lower()
+        if trig == 'bombs' or 'bomb' in blk: return 'bombs'
+        if trig in ('rockets', 'missiles') or 'rocket' in blk or 'missile' in blk: return 'rockets'
+        return 'other'
+    PH_ADD = {'bombs': 'бомбы теперь сбрасываются по одной', 'rockets': 'теперь пускаются по одной', 'other': 'теперь сбрасываются по одной'}
+    PH_DEL = {'bombs': 'бомбы больше не сбрасываются по одной', 'rockets': 'больше не пускаются по одной', 'other': 'больше не сбрасываются по одной'}
+    lines_out, sep = [], {}
+    def sep_add(c):
+        e = sep.setdefault(c.get('blk'), {'n': 0, 'type': bomb_type(c)})
+        e['n'] += 1
+    for r in recs:
+        if r['type'] == 'value' and r['key'] == 'separate':
+            if r['newV'] == 'true': sep_add(r['ctx']); continue
+            if r['oldV'] == 'true': lines_out.append(f"{prettify_bomb_path(r['ctx'].get('blk'))}: {PH_DEL[bomb_type(r['ctx'])]}"); continue
+        if r['type'] == 'add' and r['key'] == 'separate' and r['val'] == 'true': sep_add(r['ctx']); continue
+        if r['type'] == 'del' and r['key'] == 'separate' and r['val'] == 'true':
+            lines_out.append(f"{prettify_bomb_path(r['ctx'].get('blk'))}: {PH_DEL[bomb_type(r['ctx'])]}"); continue
+        if r['type'] == 'value' and r['key'] == 'bullets':
+            if r['oldV'] != r['newV']: lines_out.append(f"{prettify_bomb_path(r['ctx'].get('blk'))}: боезапас {r['oldV']} → {r['newV']}")
+            continue
+        if r['type'] == 'value' and r['key'] == 'blk':
+            lines_out.append(f"заменено оружие: {prettify_bomb_path(r['oldV'])} → {prettify_bomb_path(r['newV'])}"); continue
+        if r['type'] == 'value' and r['key'] == 'trigger':
+            lines_out.append(f"{prettify_bomb_path(r['ctx'].get('blk'))}: триггер {r['oldV']} → {r['newV']}"); continue
+        if r['type'] == 'weaponAdd': lines_out.append(f"добавлена подвеска: {prettify_bomb_path(r['bomb'])}"); continue
+        if r['type'] == 'weaponDel': lines_out.append(f"убрана подвеска: {prettify_bomb_path(r['bomb'])}"); continue
+    for bomb, e in sep.items():
+        lines_out.insert(0, f"{e['n']}x {prettify_bomb_path(bomb)}: {PH_ADD[e['type']]}")
+    return {'lines': lines_out}
+
+UNIT_CAT = [
+    (re.compile(r'ammo', re.I), ('склад боеприпасов', 'склады боеприпасов')),
+    (re.compile(r'assembly_area|assembly', re.I), ('сборочная площадка', 'сборочные площадки')),
+    (re.compile(r'stronghold', re.I), ('опорный пункт', 'опорные пункты')),
+    (re.compile(r'mlrs', re.I), ('РСЗО', 'РСЗО')),
+    (re.compile(r'aew|awacs', re.I), ('РЛС ДРЛО', 'РЛС ДРЛО')),
+    (re.compile(r'radar', re.I), ('РЛС', 'РЛС')),
+    (re.compile(r'aircraftcarrier|carrier', re.I), ('авианосец', 'авианосцы')),
+    (re.compile(r'destroyer', re.I), ('эсминец', 'эсминцы')),
+    (re.compile(r'cruiser', re.I), ('крейсер', 'крейсеры')),
+    (re.compile(r'battleship', re.I), ('линкор', 'линкоры')),
+    (re.compile(r'submarine', re.I), ('подлодка', 'подлодки')),
+    (re.compile(r'anti_aircraft|spaa|aa_gun', re.I), ('ЗСУ', 'ЗСУ')),
+    (re.compile(r'artillery|howitzer|self_propelled', re.I), ('САУ', 'САУ')),
+    (re.compile(r'tank_destroyer', re.I), ('ПТ-САУ', 'ПТ-САУ')),
+    (re.compile(r'light_tank', re.I), ('лёгкий танк', 'лёгкие танки')),
+    (re.compile(r'medium_tank', re.I), ('средний танк', 'средние танки')),
+    (re.compile(r'heavy_tank', re.I), ('тяжёлый танк', 'тяжёлые танки')),
+    (re.compile(r'helicopter', re.I), ('вертолёт', 'вертолёты')),
+    (re.compile(r'bomber', re.I), ('бомбардировщик', 'бомбардировщики')),
+    (re.compile(r'attacker|assault', re.I), ('штурмовик', 'штурмовики')),
+    (re.compile(r'fighter', re.I), ('истребитель', 'истребители')),
+    (re.compile(r'recon', re.I), ('разведчик', 'разведчики')),
+    (re.compile(r'ifv', re.I), ('БМП', 'БМП')),
+    (re.compile(r'apc', re.I), ('БТР', 'БТР')),
+    (re.compile(r'truck', re.I), ('грузовик', 'грузовики')),
+    (re.compile(r'bunker', re.I), ('бункер', 'бункеры')),
+    (re.compile(r'tank', re.I), ('танк', 'танки')),
+]
+UNIT_ABBR = {'mlrs':'MLRS','aew':'AAEW','aa':'AA','apc':'APC','ifv':'IFV','mbt':'MBT','spaa':'SPAA','rha':'RHA','era':'ERA','heat':'HEAT','ap':'AP','he':'HE','tps':'TPS','sam':'SAM','aam':'AAM','agm':'AGM','atgm':'ATGM','radar':'РЛС','gps':'GPS','ircm':'IRCM','smerch':'«Смерч»'}
+UNIT_NAME_DROP = [
+    (re.compile(r'aew|awacs|radar', re.I), {'aew','awacs','radar'}),
+    (re.compile(r'mlrs', re.I), {'mlrs'}),
+    (re.compile(r'ammo', re.I), {'ammo','storage','factory','depot'}),
+    (re.compile(r'assembly', re.I), {'assembly','area'}),
+    (re.compile(r'stronghold', re.I), {'stronghold'}),
+    (re.compile(r'aircraftcarrier|carrier', re.I), {'aircraftcarrier','carrier'}),
+    (re.compile(r'destroyer', re.I), {'destroyer'}),
+    (re.compile(r'cruiser', re.I), {'cruiser'}),
+    (re.compile(r'battleship', re.I), {'battleship'}),
+    (re.compile(r'submarine', re.I), {'submarine'}),
+    (re.compile(r'anti_aircraft|spaa', re.I), {'anti_aircraft','spaa','aa_gun'}),
+    (re.compile(r'artillery|howitzer', re.I), {'artillery','howitzer','self_propelled'}),
+]
+
+def decode_unit_class(cls):
+    s = str(cls or '')
+    cat = None
+    for rx, forms in UNIT_CAT:
+        if rx.search(s): cat = forms; break
+    name = re.sub(r'^(us|uk|ger|jp|ussr|fr|it|cn|nt|ai)_', '', s, flags=re.I)
+    name = re.sub(r'^(us|uk|ger|jp|ussr|fr|it|cn|nt|ai)_', '', name, flags=re.I)
+    name = re.sub(r'_ai$', '', name, flags=re.I)
+    all_toks = [t for t in name.split('_') if t]
+    raw = all_toks
+    if cat:
+        for rx, drop in UNIT_NAME_DROP:
+            if rx.search(s): raw = [t for t in raw if t.lower() not in drop]; break
+    if not raw: raw = all_toks
+    toks = []
+    for t in raw:
+        low = t.lower()
+        if low in UNIT_ABBR: toks.append(UNIT_ABBR[low]); continue
+        if low[0].isdigit(): toks.append(low.upper()); continue
+        toks.append(low[:1].upper() + low[1:])
+    out = []
+    for t in toks:
+        prev = out[-1] if out else None
+        if prev and re.search(r'\d$', prev) and re.fullmatch(r'\d+', t) and len(prev) <= 6:
+            out[-1] = prev + '-' + t
+        else:
+            out.append(t)
+    return {'name': ' '.join(out), 'cat': cat[0] if cat else None, 'catPl': cat[1] if cat else None}
+
+def mission_label(path):
+    seg = str(path).split('/')
+    if 'missions' not in seg: return None
+    mi = seg.index('missions')
+    mode = seg[mi + 3] if mi + 3 < len(seg) else ''
+    if '/carriers/' in str(path):
+        ci = seg.index('carriers') if 'carriers' in seg else -1
+        mapn = seg[ci - 1] if ci > 0 else ''
+    else:
+        fn = re.sub(r'\.blkx?$', '', seg[-1], flags=re.I)
+        fn = re.sub(r'^air_', '', fn, flags=re.I)
+        if mode: fn = re.sub(r'_' + mode + r'_.*$', '', fn, flags=re.I)
+        mapn = fn
+    mapn = re.sub(r'^air_', '', mapn, flags=re.I).replace('_', ' ').strip()
+    mapn = ' '.join(w[:1].upper() + w[1:] for w in mapn.split() if w)
+    mapn = mapn.replace('South Eastern', 'Southeastern').replace('North Eastern', 'Northeastern')
+    if not mapn: return None
+    if mode == 'historical':
+        prefix = '[Operation]'
+    else:
+        prefix = '[' + ' '.join(w[:1].upper() + w[1:] for w in mode.split('_') if w) + ']'
+    return {'prefix': prefix, 'map': mapn, 'label': prefix + ' ' + mapn, 'mode': mode}
+
+def analyze_mission_patch(path, patch):
+    ml = mission_label(path)
+    if not ml: return None
+    hunks, cur = [], None
+    for l in str(patch or '').split('\n'):
+        if l.startswith('@@'):
+            if cur: hunks.append(cur)
+            cur = [l]; continue
+        if l.startswith('diff '):
+            if cur: hunks.append(cur)
+            cur = None; continue
+        if cur is not None: cur.append(l)
+    if cur: hunks.append(cur)
+    is_pos = lambda l: bool(re.match(r'^[+-]\s*-?\d+(\.\d+)?\s*,?\s*$', l))
+    out = []
+    if '/carriers/' in str(path):
+        pos = sum(1 for h in hunks for l in h if is_pos(l))
+        out.append('изменены позиции и маршруты авианосцев и их эскорта' if pos > 10 else 'изменён состав юнитов авианосной группы')
+        return {'label': ml['label'], 'lines': out}
+    moved = set()
+    for h in hunks:
+        add_nums = sum(1 for l in h if re.match(r'^\+\s*-?\d+(\.\d+)?\s*,?\s*$', l))
+        has_del_nums = any(l.startswith('-') and not l.startswith('---') and re.match(r'^\s*-?\d+(\.\d+)?\s*,?\s*$', l[1:]) for l in h)
+        if has_del_nums and add_nums > 0:
+            for l in h:
+                m = re.search(r'"unit_class"\s*:\s*"([^"]+)"', l)
+                if m:
+                    d = decode_unit_class(m.group(1))
+                    if d['catPl']: moved.add(d['catPl'])
+    added_cls, removed_cls = {}, {}
+    for h in hunks:
+        for l in h:
+            m = re.match(r'^([+-])\s*"unit_class"\s*:\s*"([^"]+)"', l)
+            if not m: continue
+            (added_cls if m.group(1) == '+' else removed_cls)[m.group(2)] = decode_unit_class(m.group(2))
+    for cls in list(added_cls):  # одновременно добавленные и удалённые = перемещённые
+        if cls in removed_cls:
+            d = added_cls[cls]
+            if d['catPl']: moved.add(d['catPl'])
+            del added_cls[cls]; del removed_cls[cls]
+    if moved: out.append('перемещены: ' + ', '.join(sorted(moved)))
+    def group_by_cat(m_):
+        by = {}
+        for d in m_.values():
+            by.setdefault(d['catPl'] or 'юниты', [])
+            if d['name'] and d['name'] not in by[d['catPl'] or 'юниты']: by[d['catPl'] or 'юниты'].append(d['name'])
+        return by
+    add_cats, rem_cats = group_by_cat(added_cls), group_by_cat(removed_cls)
+    if add_cats:
+        parts = []
+        for cat, names in add_cats.items():
+            parts.append(f"{cat} ({', '.join(names[:2])} и др.)" if len(names) > 2 else f"{cat} ({', '.join(names)})")
+        out.append('добавлены: ' + ', '.join(parts))
+    if rem_cats:
+        out.append('убраны: ' + ', '.join(f"{cat} ({', '.join(names[:3])})" for cat, names in rem_cats.items()))
+    if not out: out.append('изменена расстановка юнитов на карте')
+    return {'label': ml['label'], 'lines': out}
+
+def build_changelog(files, rep, cmp_root=None):
+    """Собирает структурированный changelog: группировка одинаковых изменений"""
+    by_entity = {}
+    def add_lines(kind, entity, label, lines, classes=None):
+        if not entity or not lines: return
+        e = by_entity.setdefault(entity, {'kind': kind, 'entity': entity, 'label': label, 'lines': [], 'classes': []})
+        for l in lines:
+            if l not in e['lines']: e['lines'].append(l)
+        for c in (classes or []):
+            if c not in e['classes']: e['classes'].append(c)
+    # 1) загрузка (weaponpresets)
+    for f in files:
+        if f['status'] == 'modified' and 'weaponpresets/' in f['filename'] and f.get('patch'):
+            ac = prettify_aircraft_from_preset(f['filename'].split('/')[-1])
+            r = analyze_weapon_preset_patch(f['patch'])
+            if r and r['lines']: add_lines('loadout', ac, 'изменения загрузки', r['lines'])
+    # 2) классы брони
+    armor_file = next((f for f in files if f['status'] == 'modified'
+                       and re.search(r'damage_model/armor_classes\.blkx?$', f['filename']) and f.get('patch')), None)
+    if armor_file:
+        by_change = {}
+        for c in analyze_armor_classes_patch(armor_file['patch']):
+            key = (c['matKey'], c['thickness'] or '', ' '.join(c['lines']))
+            g = by_change.setdefault(key, {'material': c['material'], 'thickness': c['thickness'], 'parts': [], 'lines': c['lines'], 'classes': []})
+            if c['part'] and c['part'] not in g['parts']: g['parts'].append(c['part'])
+            g['classes'].append(c['name'])
+        for g in by_change.values():
+            entity = f"{g['thickness']} мм {g['material']}" if g['thickness'] else g['material']
+            add_lines('armor', entity, ', '.join(g['parts']), g['lines'], g['classes'])
+    # 3) миссии
+    for f in files:
+        if re.search(r'mis\.vromfs\.bin_u/.*missions/', f['filename']) and f.get('patch'):
+            m = analyze_mission_patch(f['filename'], f['patch'])
+            if m and m['lines']: add_lines('mission', m['label'], '', m['lines'])
+    for f in files:
+        if f['status'] == 'added' and '_mirror_' in f['filename']:
+            base_p = f['filename'].replace('_mirror_', '_')
+            if any(x['filename'] == base_p and x['status'] == 'modified' for x in files):
+                ml = mission_label(base_p)
+                if ml: add_lines('mission', ml['label'], '', ['добавлена зеркальная версия карты'])
+    # 4) прочие значимые изменения (баффы/нерфы)
+    for f in files:
+        if (f['status'] == 'modified' and f.get('patch') and 'weaponpresets/' not in f['filename']
+                and 'missions/' not in f['filename'] and 'armor_classes' not in f['filename']):
+            an = analyze_file(f)
+            if an['verdict'] != 'change' and an['changes']:
+                add_lines('generic', prettify_name(f['short_path'].split('/')[-1]), '', [d['text'] for d in an['changes'][:5]])
+    # слияние записей с одинаковым текстом изменений
+    merged = {}
+    for e in by_entity.values():
+        key = (e['kind'], e['label'], ' '.join(e['lines']))
+        g = merged.setdefault(key, {'kind': e['kind'], 'entities': [], 'label': e['label'], 'lines': e['lines'], 'classes': []})
+        if e['entity'] not in g['entities']: g['entities'].append(e['entity'])
+        for c in e['classes']:
+            if c not in g['classes']: g['classes'].append(c)
+    order = {'loadout': 0, 'armor': 1, 'mission': 2, 'generic': 3}
+    entries = sorted(merged.values(), key=lambda g: (order.get(g['kind'], 9), -len(g['entities'])))
+    # локальный скан дампа: какие юниты используют изменённые классы брони
+    if cmp_root is not None:
+        fm_dirs = [vd / 'gamedata' / 'flightmodels' for vd in sorted(pathlib.Path(cmp_root).glob('*.vromfs.bin_u'))
+                   if (vd / 'gamedata' / 'flightmodels').is_dir()]
+        for g in entries:
+            if g['kind'] != 'armor' or not g['classes']: continue
+            names = set()
+            for d in fm_dirs:
+                for fp in d.iterdir():
+                    if not fp.is_file() or not re.search(r'\.blkx?$', fp.name, re.I): continue
+                    try: content = fp.read_text(encoding='utf-8', errors='replace')
+                    except OSError: continue
+                    if any(f'"{c}"' in content for c in g['classes'][:8]):
+                        names.add(prettify_name(fp.stem))
+            if names: g['affected'] = sorted(names)
+    return entries
+
+def join_entities(entities, cap=15):
+    lst = list(entities[:cap]); more = len(entities) - len(lst)
+    m = re.match(r'^(\[[^\]]+\])\s', lst[0]) if lst else None
+    if m and all(x.startswith(m.group(1) + ' ') for x in lst):
+        out = ', '.join([lst[0]] + [x[len(m.group(1)) + 1:] for x in lst[1:]])
+    else:
+        out = ', '.join(lst)
+    return out + (f' и ещё {more}' if more > 0 else '')
+
+def changelog_markdown(entries):
+    if not entries: return ''
+    L = ['## 🗒️ Changelog (структурированный авто-анализ)', '']
+    for e in entries:
+        L.append(f"- **{join_entities(e['entities'], 15)}**")
+        if e['label']: L.append(f"  - {e['label']}:")
+        for l in e['lines'][:25]: L.append(f"    - {l}")
+        if len(e['lines']) > 25: L.append(f"    - … ещё {len(e['lines']) - 25}")
+        if e.get('affected'):
+            aff = e['affected']
+            tail = ', '.join(aff[:60]) + (' …' if len(aff) > 60 else '')
+            L.append(f"  - затронуто юнитов: {len(aff)} — {tail}")
+    L.append('')
+    return '\n'.join(L)
+
+def render_changelog_html(entries):
+    if not entries: return ''
+    h = ['<div class="rep-section"><div class="rep-sec-title">🗒️ Changelog <span class="cnt">структурированный авто-анализ</span></div><ul class="cl">']
+    for e in entries:
+        h.append(f'<li><span class="cl-entity">{esc(join_entities(e["entities"], 15))}</span><ul>')
+        if e['label']:
+            h.append(f'<li><span class="cl-label">{esc(e["label"])}:</span><ul>')
+        else:
+            h.append('<li><ul>')
+        for l in e['lines'][:20]:
+            h.append(f'<li>{esc(l)}</li>')
+        if len(e['lines']) > 20:
+            h.append(f'<li class="cl-more">… ещё {len(e["lines"]) - 20}</li>')
+        h.append('</ul></li>')
+        if e.get('affected'):
+            aff = e['affected']
+            tail = ', '.join(aff[:60]) + (' …' if len(aff) > 60 else '')
+            h.append(f'<li><span class="cl-label">затронуто юнитов: {len(aff)}</span> — {esc(tail)}</li>')
+        h.append('</ul></li>')
+    h.append('</ul></div>')
+    return ''.join(h)
+
+
+def build_markdown(rep, changelog=None):
     """Готовый отчёт в виде Markdown (текст)"""
     L = []
     L.append('# 📋 Отчёт об изменениях — War Thunder Datamine')
@@ -496,6 +1092,11 @@ def build_markdown(rep):
     L.append(f"| 🔧 Изменено файлов | **{rep['stats']['modified']}** |")
     L.append(f"| 🗑️ Удалено файлов | **{rep['stats']['deleted']}** |")
     L.append(f"| **Всего** | **{rep['stats']['total']}** |")
+    if changelog:
+        cl = changelog_markdown(changelog).rstrip('\n')
+        if cl.strip():
+            L.append('')
+            L.append(cl)
     if rep['highlights']:
         L.append('')
         L.append('## ⭐ Главное (авто-анализ)')
@@ -571,12 +1172,21 @@ REPORT_CSS = """body{background:#0f0f0f;color:#e6e6e6;font-family:Inter,Segoe UI
 .rep-more{font-size:11px;color:#6b6b6b;font-style:italic;margin-top:2px}
 .rep-list{display:flex;flex-direction:column;gap:4px}
 .rep-empty{color:#6b6b6b;font-size:13px;padding:40px;text-align:center}
+ul.cl{margin:0;padding-left:4px;list-style:none}
+ul.cl li{position:relative;padding-left:14px;margin-bottom:2px;color:#bdbdbd;font-size:12.5px;line-height:1.55}
+ul.cl ul{padding-left:6px;margin-top:2px}
+ul.cl>li{margin-bottom:10px}
+ul.cl>li>.cl-entity{color:#e6e6e6;font-weight:700;font-size:13px}
+ul.cl .cl-label{color:#e6e6e6;font-weight:600}
+ul.cl li::before{content:"•";position:absolute;left:2px;color:#666}
+ul.cl>li::before{content:"▸";color:#4f9cf9}
+.cl-more{color:#777;font-style:italic;font-size:11.5px}
 .rep-foot{color:#6b6b6b;font-size:11px;text-align:center;margin-top:4px}"""
 
 def esc(s):
     return str(s if s is not None else '').replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
 
-def build_html(rep):
+def build_html(rep, changelog=None):
     """Готовый отчёт в виде standalone HTML"""
     s = rep['stats']
     h = []
@@ -589,6 +1199,9 @@ def build_html(rep):
     h.append(f'<span class="rep-chip deleted">🗑️ Удалено <b>{s["deleted"]}</b></span>')
     h.append(f'<span class="rep-chip">Всего <b>{s["total"]}</b></span>')
     h.append('</div></div>')
+    if changelog:
+        clh = render_changelog_html(changelog)
+        if clh: h.append(clh)
     if rep['highlights']:
         h.append(f'<div class="rep-section"><div class="rep-sec-title">⭐ Главное <span class="cnt">авто-анализ • {len(rep["highlights"])}</span></div>')
         for hl in rep['highlights'][:30]:
@@ -727,13 +1340,15 @@ def main():
         print("[analyze] разбираю изменения .blk (баффы/нерфы)…")
         files = build_file_entries(res, base, cmp)
         rep = analyze_files(files, base.name, cmp.name)
-        md = build_markdown(rep)
+        print("[changelog] семантический анализ: загрузка, броня, миссии…")
+        changelog = build_changelog(files, rep, cmp_root=cmp)
+        md = build_markdown(rep, changelog)
 
         if args.json:
             pathlib.Path(args.json).write_text(json.dumps(res, indent=2, ensure_ascii=False), encoding="utf-8")
             print(f"[json] сырой diff сохранён в {args.json}")
         if args.html:
-            pathlib.Path(args.html).write_text(build_html(rep), encoding="utf-8")
+            pathlib.Path(args.html).write_text(build_html(rep, changelog), encoding="utf-8")
             print(f"[html] 📊 готовый отчёт сохранён в {args.html}")
         if args.md:
             pathlib.Path(args.md).write_text(md, encoding="utf-8")
